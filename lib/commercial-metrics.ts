@@ -403,13 +403,15 @@ export function calcOperacionalKPIs(
   vendas: any[],
   indicacoes: any[]
 ) {
-  const avaliacoes = oportunidades.filter((o) => o.tipoOportunidade === "Avaliacao").length;
+  const safeTipo = (tipo: any) => String(tipo || "").trim().toLowerCase();
+  
+  const avaliacoes = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "avaliação" || safeTipo(o.tipoOportunidade) === "avaliacao").length;
   const prospectados = oportunidades.filter((o) =>
-    ["Plano novo", "Reativacao"].includes(o.tipoOportunidade)
+    safeTipo(o.tipoOportunidade) === "plano novo" || safeTipo(o.tipoOportunidade) === "reativação" || safeTipo(o.tipoOportunidade) === "reativacao"
   ).length;
-  const renovacoes = oportunidades.filter((o) => o.tipoOportunidade === "Renovacao").length;
-  const ticketBaixo = oportunidades.filter((o) => o.tipoOportunidade === "Ticket baixo").length;
-  const orcamentos = oportunidades.filter((o) => o.tipoOportunidade === "Orcamento").length;
+  const renovacoes = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "renovação" || safeTipo(o.tipoOportunidade) === "renovacao").length;
+  const ticketBaixo = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "ticket baixo").length;
+  const orcamentos = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "orçamento" || safeTipo(o.tipoOportunidade) === "orcamento").length;
 
   const totalOpportunidades = avaliacoes + prospectados + renovacoes + ticketBaixo;
   const planosVendidos = vendas.length;

@@ -335,7 +335,12 @@ export function calcDashboardKPIs(
   const valorTotal = safeSum(vendas, "valorVendido");
   const indicacoesColetadas = indicacoes.filter((i) => i.indicouAlguem === "Sim").length;
   const indicacoesSolicitadas = indicacoes.filter((i) => i.indicacaoSolicitada === "Sim").length;
-  const prospectados = contatos.filter((c) => c.foiProspectado === "Sim").length;
+  const prospectados = contatos.filter((c) => 
+    c.foiProspectado === "Sim" || (c.dataProspeccao && String(c.dataProspeccao).trim() !== "")
+  ).length;
+
+  const taxaProspeccao = safeDivide(prospectados, totalContatos) * 100;
+  const taxaAgendamento = safeDivide(totalAgendamentos, prospectados) * 100;
 
   const convGeral = safeDivide(totalFechamentos, totalContatos) * 100;
   const ticketMedio = safeDivide(valorTotal, totalFechamentos);
@@ -373,6 +378,8 @@ export function calcDashboardKPIs(
     valorTotal,
     ticketMedio,
     convGeral,
+    taxaProspeccao,
+    taxaAgendamento,
     melhorEstrategia,
     piorEstrategia,
     maiorMotivoPerdas,

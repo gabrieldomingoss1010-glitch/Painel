@@ -143,12 +143,14 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Funil Comercial</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
           <KPICard title="Contatos" value={kpis.totalContatos} icon={<Users size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Taxa de Prospeccao" value={fmtPct(kpis.taxaProspeccao)} icon={<TrendingUp size={18} />} color="#cab2a1" delay={30} />
           <KPICard title="Agendamentos" value={kpis.totalAgendamentos} icon={<CalendarCheck size={18} />} color="#a78b7a" delay={60} />
+          <KPICard title="Taxa de Agendamento" value={fmtPct(kpis.taxaAgendamento)} icon={<TrendingUp size={18} />} color="#a78b7a" delay={90} />
           <KPICard title="Comparecimentos" value={kpis.comparecimentos} icon={<UserCheck size={18} />} color="#8b6b5a" delay={120} />
-          <KPICard title="Fechamentos" value={kpis.totalFechamentos} icon={<Award size={18} />} color="#cab2a1" delay={180} />
-          <KPICard title="Oportunidades" value={kpis.totalOportunidades} icon={<Target size={18} />} color="#b09080" delay={240} />
+          <KPICard title="Oportunidades" value={kpis.totalOportunidades} icon={<Target size={18} />} color="#b09080" delay={180} />
+          <KPICard title="Fechamentos" value={kpis.totalFechamentos} icon={<Award size={18} />} color="#cab2a1" delay={240} />
         </div>
       </section>
 

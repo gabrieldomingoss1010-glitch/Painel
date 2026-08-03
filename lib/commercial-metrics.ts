@@ -26,43 +26,88 @@ export function parseDateBR(dateStr: string): Date | null {
   // Fallback ISO YYYY-MM-DD
   const d = new Date(dateStr);
   return isNaN(d.getTime()) ? null : d;
+}  
+/** Helper to get ISO week number */
+function getWeekNumber(d: Date): number {
+  const date = new Date(d.getTime());
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+  const week1 = new Date(date.getFullYear(), 0, 4);
+  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
-/** Extrai "YYYY-MM" de uma string de data */
-export function getMonthKeyFromDate(dateStr: string): string | null {
+/** Extrai chaves de periodo (dia, semana, mes, ano) de uma string de data */
+export function getPeriodKeysFromDate(dateStr: string): { day: string, week: string, month: string, year: string } | null {
   const d = parseDateBR(dateStr);
   if (!d) return null;
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const w = getWeekNumber(d);
+
+  return {
+    day: `dia:${y}-${m}-${day}`,
+    week: `semana:${y}-W${String(w).padStart(2, "0")}`,
+    month: `mes:${y}-${m}`,
+    year: `ano:${y}`,
+  };
 }
 
-/** Filtra array por mes (YYYY-MM) usando um campo de data */
-export function filterByMonth(arr: any[], dateField: string, monthKey: string): any[] {
+/** Filtra array por periodo usando um campo de data */
+export function filterByPeriod(arr: any[], dateField: string, periodKey: string): any[] {
+  if (!periodKey || periodKey === "all") return arr;
+  
   return arr.filter((item) => {
-    const key = getMonthKeyFromDate(item[dateField]);
-    return key === monthKey;
+    const keys = getPeriodKeysFromDate(item[dateField]);
+    if (!keys) return false;
+    
+    if (periodKey.startsWith("dia:")) return keys.day === periodKey;
+    if (periodKey.startsWith("semana:")) return keys.week === periodKey;
+    if (periodKey.startsWith("mes:")) return keys.month === periodKey;
+    if (periodKey.startsWith("ano:")) return keys.year === periodKey;
+    
+    return false;
   });
 }
 
-/** Retorna lista de meses disponiveis [{key: "2026-07", label: "jul/2026"}, ...] */
-export function getAvailableMonths(datasets: { data: any[]; dateField: string }[]): { key: string; label: string }[] {
-  const monthSet = new Set<string>();
+/** Retorna lista agrupada de periodos disponiveis */
+export function getAvailablePeriods(datasets: { data: any[]; dateField: string }[]) {
+  const days = new Set<string>();
+  const weeks = new Set<string>();
+  const months = new Set<string>();
+  const years = new Set<string>();
   
   datasets.forEach(({ data, dateField }) => {
     data.forEach((item) => {
-      const key = getMonthKeyFromDate(item[dateField]);
-      if (key) monthSet.add(key);
+      const keys = getPeriodKeysFromDate(item[dateField]);
+      if (keys) {
+        days.add(keys.day);
+        weeks.add(keys.week);
+        months.add(keys.month);
+        years.add(keys.year);
+      }
     });
   });
   
-  return Array.from(monthSet)
-    .sort()
-    .reverse()
-    .map((key) => {
-      const [year, month] = key.split("-");
-      const d = new Date(Number(year), Number(month) - 1, 1);
-      const label = d.toLocaleString("pt-BR", { month: "short", year: "numeric" }).replace(".", "");
-      return { key, label };
-    });
+  const formatMonth = (k: string) => {
+    const [y, m] = k.replace("mes:", "").split("-");
+    const d = new Date(Number(y), Number(m) - 1, 1);
+    const label = d.toLocaleString("pt-BR", { month: "short", year: "numeric" }).replace(".", "");
+    return label;
+  };
+  
+  const formatDay = (k: string) => {
+    const [y, m, d] = k.replace("dia:", "").split("-");
+    return `${d}/${m}/${y}`;
+  };
+
+  return {
+    days: Array.from(days).sort().reverse().map(k => ({ key: k, label: formatDay(k) })),
+    weeks: Array.from(weeks).sort().reverse().map(k => ({ key: k, label: k.replace("semana:", "Semana ").replace("-W", " (") + ")" })),
+    months: Array.from(months).sort().reverse().map(k => ({ key: k, label: formatMonth(k) })),
+    years: Array.from(years).sort().reverse().map(k => ({ key: k, label: k.replace("ano:", "") })),
+  };
 }
 
 /** Divisao segura — retorna 0 quando denominador for zero */

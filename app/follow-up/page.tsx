@@ -9,9 +9,10 @@ import {
   Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import KPICard from "@/components/cards/KPICard";
+import PeriodSelector from "@/components/ui/PeriodSelector";
 import { useData } from "@/lib/data-store";
 import { followUps as defaultFollowUps } from "@/lib/mock-data";
-import { calcFollowUpKPIs, fmtBRL, fmtPct, filterByMonth, getAvailableMonths } from "@/lib/commercial-metrics";
+import { calcFollowUpKPIs, fmtBRL, fmtPct, filterByPeriod, getAvailablePeriods } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -40,22 +41,31 @@ const CADENCIA_COLORS: Record<string, string> = {
 export default function FollowUpPage() {
   const [followUpsRaw] = useData("followUps", defaultFollowUps);
 
-  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const defaultMonth = `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedPeriod, setSelectedPeriod] = useState(defaultMonth);
 
-  const availableMonths = useMemo(
-    () => getAvailableMonths([{ data: followUpsRaw as any[], dateField: "dataFollowUp" }]),
+  const availablePeriods = useMemo(
+    () => getAvailablePeriods([{ data: followUpsRaw as any[], dateField: "dataFollowUp" }]),
     [followUpsRaw]
   );
 
-  const followUps = useMemo(() => filterByMonth(followUpsRaw as any[], "dataFollowUp", selectedMonth), [followUpsRaw, selectedMonth]);
+  const followUps = useMemo(() => filterByPeriod(followUpsRaw as any[], "dataFollowUp", selectedPeriod), [followUpsRaw, selectedPeriod]);
 
   const kpis = useMemo(
     () => calcFollowUpKPIs(followUps),
     [followUps]
   );
 
-  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
+  const getPeriodLabel = () => {
+    if (selectedPeriod === "all") return "Todo o período";
+    for (const group of Object.values(availablePeriods)) {
+      const found = group.find((m: any) => m.key === selectedPeriod);
+      if (found) return found.label;
+    }
+    return selectedPeriod;
+  };
+
+  const selectedLabel = getPeriodLabel();
 
   return (
     <div className="space-y-6 page-enter">
@@ -75,16 +85,12 @@ export default function FollowUpPage() {
             <p className="text-xs text-gray-500">Recuperacao de orcamentos perdidos por cadencia — {selectedLabel}</p>
           </div>
         </div>
-        <div className="relative">
-          <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
-            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
-            style={{ background: "rgba(202,178,161,0.08)", border: "1px solid rgba(202,178,161,0.15)", color: "#cab2a1" }}>
-            {availableMonths.map((m) => (
-              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>{m.label}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
-        </div>
+        
+        <PeriodSelector 
+          availablePeriods={availablePeriods} 
+          selectedPeriod={selectedPeriod} 
+          onChange={setSelectedPeriod} 
+        />
       </div>
 
       {/* KPIs principais */}

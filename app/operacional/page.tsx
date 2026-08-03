@@ -11,6 +11,7 @@ import {
   Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import KPICard from "@/components/cards/KPICard";
+import PeriodSelector from "@/components/ui/PeriodSelector";
 import { useData } from "@/lib/data-store";
 import {
   agenda as defaultAgenda,
@@ -22,8 +23,8 @@ import {
   calcOperacionalKPIs,
   fmtBRL,
   fmtPct,
-  filterByMonth,
-  getAvailableMonths,
+  filterByPeriod,
+  getAvailablePeriods,
 } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -48,11 +49,11 @@ export default function OperacionalPage() {
   const [vendasRaw] = useData("vendas", defaultVendas);
   const [indicacoesRaw] = useData("indicacoes", defaultIndicacoes);
 
-  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const defaultMonth = `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedPeriod, setSelectedPeriod] = useState(defaultMonth);
 
-  const availableMonths = useMemo(
-    () => getAvailableMonths([
+  const availablePeriods = useMemo(
+    () => getAvailablePeriods([
       { data: agendaRaw as any[], dateField: "dataAgendamento" },
       { data: oportunidadesRaw as any[], dateField: "data" },
       { data: vendasRaw as any[], dateField: "dataVenda" },
@@ -60,17 +61,26 @@ export default function OperacionalPage() {
     [agendaRaw, oportunidadesRaw, vendasRaw]
   );
 
-  const agenda = useMemo(() => filterByMonth(agendaRaw as any[], "dataAgendamento", selectedMonth), [agendaRaw, selectedMonth]);
-  const oportunidades = useMemo(() => filterByMonth(oportunidadesRaw as any[], "data", selectedMonth), [oportunidadesRaw, selectedMonth]);
-  const vendas = useMemo(() => filterByMonth(vendasRaw as any[], "dataVenda", selectedMonth), [vendasRaw, selectedMonth]);
-  const indicacoes = useMemo(() => filterByMonth(indicacoesRaw as any[], "data", selectedMonth), [indicacoesRaw, selectedMonth]);
+  const agenda = useMemo(() => filterByPeriod(agendaRaw as any[], "dataAgendamento", selectedPeriod), [agendaRaw, selectedPeriod]);
+  const oportunidades = useMemo(() => filterByPeriod(oportunidadesRaw as any[], "data", selectedPeriod), [oportunidadesRaw, selectedPeriod]);
+  const vendas = useMemo(() => filterByPeriod(vendasRaw as any[], "dataVenda", selectedPeriod), [vendasRaw, selectedPeriod]);
+  const indicacoes = useMemo(() => filterByPeriod(indicacoesRaw as any[], "data", selectedPeriod), [indicacoesRaw, selectedPeriod]);
 
   const kpis = useMemo(
     () => calcOperacionalKPIs(agenda, oportunidades, vendas, indicacoes),
     [agenda, oportunidades, vendas, indicacoes]
   );
 
-  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
+  const getPeriodLabel = () => {
+    if (selectedPeriod === "all") return "Todo o período";
+    for (const group of Object.values(availablePeriods)) {
+      const found = group.find((m: any) => m.key === selectedPeriod);
+      if (found) return found.label;
+    }
+    return selectedPeriod;
+  };
+
+  const selectedLabel = getPeriodLabel();
 
   return (
     <div className="space-y-6 page-enter">
@@ -90,16 +100,12 @@ export default function OperacionalPage() {
             <p className="text-xs text-gray-500">Oportunidades, agenda e indicacoes — {selectedLabel}</p>
           </div>
         </div>
-        <div className="relative">
-          <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
-            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
-            style={{ background: "rgba(202,178,161,0.08)", border: "1px solid rgba(202,178,161,0.15)", color: "#cab2a1" }}>
-            {availableMonths.map((m) => (
-              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>{m.label}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
-        </div>
+        
+        <PeriodSelector 
+          availablePeriods={availablePeriods} 
+          selectedPeriod={selectedPeriod} 
+          onChange={setSelectedPeriod} 
+        />
       </div>
 
       {/* Oportunidades */}

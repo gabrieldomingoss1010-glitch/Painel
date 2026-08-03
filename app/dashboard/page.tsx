@@ -11,6 +11,7 @@ import {
   Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import KPICard from "@/components/cards/KPICard";
+import PeriodSelector from "@/components/ui/PeriodSelector";
 import { useData } from "@/lib/data-store";
 import {
   contatos as defaultContatos,
@@ -27,8 +28,8 @@ import {
   fmtBRL,
   fmtPct,
   safeDivide,
-  filterByMonth,
-  getAvailableMonths,
+  filterByPeriod,
+  getAvailablePeriods,
 } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -59,12 +60,12 @@ export default function DashboardPage() {
   const [indicacoesRaw] = useData("indicacoes", defaultIndicacoes);
 
   // Default to current month
-  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const defaultMonth = `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedPeriod, setSelectedPeriod] = useState(defaultMonth);
 
-  const availableMonths = useMemo(
+  const availablePeriods = useMemo(
     () =>
-      getAvailableMonths([
+      getAvailablePeriods([
         { data: contatosRaw as any[], dateField: "dataContato" },
         { data: vendasRaw as any[], dateField: "dataVenda" },
         { data: agendaRaw as any[], dateField: "dataAgendamento" },
@@ -73,12 +74,12 @@ export default function DashboardPage() {
   );
 
   // Filtered data
-  const contatos = useMemo(() => filterByMonth(contatosRaw as any[], "dataContato", selectedMonth), [contatosRaw, selectedMonth]);
-  const agenda = useMemo(() => filterByMonth(agendaRaw as any[], "dataAgendamento", selectedMonth), [agendaRaw, selectedMonth]);
-  const oportunidades = useMemo(() => filterByMonth(oportunidadesRaw as any[], "data", selectedMonth), [oportunidadesRaw, selectedMonth]);
-  const vendas = useMemo(() => filterByMonth(vendasRaw as any[], "dataVenda", selectedMonth), [vendasRaw, selectedMonth]);
-  const followUps = useMemo(() => filterByMonth(followUpsRaw as any[], "dataFollowUp", selectedMonth), [followUpsRaw, selectedMonth]);
-  const indicacoes = useMemo(() => filterByMonth(indicacoesRaw as any[], "data", selectedMonth), [indicacoesRaw, selectedMonth]);
+  const contatos = useMemo(() => filterByPeriod(contatosRaw as any[], "dataContato", selectedPeriod), [contatosRaw, selectedPeriod]);
+  const agenda = useMemo(() => filterByPeriod(agendaRaw as any[], "dataAgendamento", selectedPeriod), [agendaRaw, selectedPeriod]);
+  const oportunidades = useMemo(() => filterByPeriod(oportunidadesRaw as any[], "data", selectedPeriod), [oportunidadesRaw, selectedPeriod]);
+  const vendas = useMemo(() => filterByPeriod(vendasRaw as any[], "dataVenda", selectedPeriod), [vendasRaw, selectedPeriod]);
+  const followUps = useMemo(() => filterByPeriod(followUpsRaw as any[], "dataFollowUp", selectedPeriod), [followUpsRaw, selectedPeriod]);
+  const indicacoes = useMemo(() => filterByPeriod(indicacoesRaw as any[], "data", selectedPeriod), [indicacoesRaw, selectedPeriod]);
 
   const kpis = useMemo(
     () =>
@@ -96,7 +97,16 @@ export default function DashboardPage() {
     [contatos, vendas]
   );
 
-  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
+  const getPeriodLabel = () => {
+    if (selectedPeriod === "all") return "Todo o período";
+    for (const group of Object.values(availablePeriods)) {
+      const found = group.find((m: any) => m.key === selectedPeriod);
+      if (found) return found.label;
+    }
+    return selectedPeriod;
+  };
+
+  const selectedLabel = getPeriodLabel();
 
   const BAR_COLORS = ["#cab2a1", "#a78b7a", "#8b6b5a", "#6d4f4f", "#543c3c"];
 
@@ -118,26 +128,12 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-500">Visao executiva do comercial — {selectedLabel}</p>
           </div>
         </div>
-        {/* Month Selector */}
-        <div className="relative">
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
-            style={{
-              background: "rgba(202,178,161,0.08)",
-              border: "1px solid rgba(202,178,161,0.15)",
-              color: "#cab2a1",
-            }}
-          >
-            {availableMonths.map((m) => (
-              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
-        </div>
+
+        <PeriodSelector
+          availablePeriods={availablePeriods}
+          selectedPeriod={selectedPeriod}
+          onChange={setSelectedPeriod}
+        />
       </div>
 
       {/* KPI Grid — linha 1: funil principal */}
@@ -198,9 +194,9 @@ export default function DashboardPage() {
             { label: "Maior Motivo de Perda", value: kpis.maiorMotivoPerdas, color: "#fb923c", icon: <AlertCircle size={14} /> },
             { label: "Melhor Recepcionista", value: kpis.melhorRecepcao, color: "#cab2a1", icon: <Award size={14} /> },
             { label: "Melhor Comercial", value: kpis.melhorComercial, color: "#cab2a1", icon: <Award size={14} /> },
-            { label: "Video c/ Mais Clientes", value: kpis.videoMaisClientes || "-", color: "#a78b7a", icon: <Video size={14} /> },
-            { label: "Video que Mais Vendeu", value: kpis.videoMaisVendas || "-", color: "#8b6b5a", icon: <Video size={14} /> },
-            { label: "Video Maior Ticket", value: kpis.videoMaiorTicket || "-", color: "#c4a090", icon: <Video size={14} /> },
+            { label: "Vendedor com Mais Clientes", value: kpis.videoMaisClientes || "-", color: "#a78b7a", icon: <Video size={14} /> },
+            { label: "vendedor que Mais Vendeu", value: kpis.videoMaisVendas || "-", color: "#8b6b5a", icon: <Video size={14} /> },
+            { label: "Vendedor de Maior ticket", value: kpis.videoMaiorTicket || "-", color: "#c4a090", icon: <Video size={14} /> },
           ].map((item, i) => (
             <div
               key={i}

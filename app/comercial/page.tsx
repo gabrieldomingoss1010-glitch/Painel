@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
-  TrendingUp, Users, Target, DollarSign, Award, ArrowRight,
+  TrendingUp, Users, Target, DollarSign, Award, ArrowRight, ChevronDown,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -23,6 +23,8 @@ import {
   fmtBRL,
   fmtPct,
   safeDivide,
+  filterByMonth,
+  getAvailableMonths,
 } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -44,32 +46,48 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function ComercialPage() {
-  const [contatos] = useData("contatos", defaultContatos);
-  const [agenda] = useData("agenda", defaultAgenda);
-  const [vendas] = useData("vendas", defaultVendas);
+  const [contatosRaw] = useData("contatos", defaultContatos);
+  const [agendaRaw] = useData("agenda", defaultAgenda);
+  const [vendasRaw] = useData("vendas", defaultVendas);
+
+  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
+  const availableMonths = useMemo(
+    () => getAvailableMonths([
+      { data: contatosRaw as any[], dateField: "dataContato" },
+      { data: vendasRaw as any[], dateField: "dataVenda" },
+      { data: agendaRaw as any[], dateField: "dataAgendamento" },
+    ]),
+    [contatosRaw, vendasRaw, agendaRaw]
+  );
+
+  const contatos = useMemo(() => filterByMonth(contatosRaw as any[], "dataContato", selectedMonth), [contatosRaw, selectedMonth]);
+  const agenda = useMemo(() => filterByMonth(agendaRaw as any[], "dataAgendamento", selectedMonth), [agendaRaw, selectedMonth]);
+  const vendas = useMemo(() => filterByMonth(vendasRaw as any[], "dataVenda", selectedMonth), [vendasRaw, selectedMonth]);
 
   const funil = useMemo(
-    () => calcComercialFunil(contatos as any[], agenda as any[], vendas as any[]),
+    () => calcComercialFunil(contatos, agenda, vendas),
     [contatos, agenda, vendas]
   );
 
   const rankingComercial = useMemo(
-    () => groupByResponsavelComercial(vendas as any[]),
+    () => groupByResponsavelComercial(vendas),
     [vendas]
   );
 
   const estrategias = useMemo(
-    () => groupByStrategy(contatos as any[], agenda as any[], vendas as any[]),
+    () => groupByStrategy(contatos, agenda, vendas),
     [contatos, agenda, vendas]
   );
 
   // Taxas entre etapas do funil para os KPI cards
   const totalContatos = contatos.length;
-  const prospectados = (contatos as any[]).filter((c) => c.foiProspectado === "Sim").length;
+  const prospectados = contatos.filter((c: any) => c.foiProspectado === "Sim").length;
   const agendamentos = agenda.length;
-  const comparecimentos = (agenda as any[]).filter((a) => a.statusAgenda === "Compareceu").length;
+  const comparecimentos = agenda.filter((a: any) => a.statusAgenda === "Compareceu").length;
   const fechamentos = vendas.length;
-  const valorTotal = (vendas as any[]).reduce((acc: number, v: any) => acc + (Number(v.valorVendido) || 0), 0);
+  const valorTotal = vendas.reduce((acc: number, v: any) => acc + (Number(v.valorVendido) || 0), 0);
 
   const taxaProspeccao = safeDivide(prospectados, totalContatos) * 100;
   const taxaAgendamento = safeDivide(agendamentos, prospectados) * 100;
@@ -77,21 +95,35 @@ export default function ComercialPage() {
   const taxaFechamento = safeDivide(fechamentos, comparecimentos) * 100;
   const ticketMedio = safeDivide(valorTotal, fechamentos);
 
+  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
+
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
-        >
-          <TrendingUp size={18} className="text-white" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
+          >
+            <TrendingUp size={18} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
+              Painel Comercial
+            </h1>
+            <p className="text-xs text-gray-500">Funil de vendas e performance comercial — {selectedLabel}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
-            Painel Comercial
-          </h1>
-          <p className="text-xs text-gray-500">Funil de vendas e performance comercial — julho 2026</p>
+        <div className="relative">
+          <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
+            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
+            style={{ background: "rgba(202,178,161,0.08)", border: "1px solid rgba(202,178,161,0.15)", color: "#cab2a1" }}>
+            {availableMonths.map((m) => (
+              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>{m.label}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
         </div>
       </div>
 

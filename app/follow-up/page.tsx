@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
-  MessageSquare, DollarSign, TrendingUp, CheckCircle,
+  MessageSquare, DollarSign, TrendingUp, CheckCircle, ChevronDown,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -11,7 +11,7 @@ import {
 import KPICard from "@/components/cards/KPICard";
 import { useData } from "@/lib/data-store";
 import { followUps as defaultFollowUps } from "@/lib/mock-data";
-import { calcFollowUpKPIs, fmtBRL, fmtPct } from "@/lib/commercial-metrics";
+import { calcFollowUpKPIs, fmtBRL, fmtPct, filterByMonth, getAvailableMonths } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -38,28 +38,52 @@ const CADENCIA_COLORS: Record<string, string> = {
 };
 
 export default function FollowUpPage() {
-  const [followUps] = useData("followUps", defaultFollowUps);
+  const [followUpsRaw] = useData("followUps", defaultFollowUps);
+
+  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
+  const availableMonths = useMemo(
+    () => getAvailableMonths([{ data: followUpsRaw as any[], dateField: "dataFollowUp" }]),
+    [followUpsRaw]
+  );
+
+  const followUps = useMemo(() => filterByMonth(followUpsRaw as any[], "dataFollowUp", selectedMonth), [followUpsRaw, selectedMonth]);
 
   const kpis = useMemo(
-    () => calcFollowUpKPIs(followUps as any[]),
+    () => calcFollowUpKPIs(followUps),
     [followUps]
   );
+
+  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
 
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
-        >
-          <MessageSquare size={18} className="text-white" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
+          >
+            <MessageSquare size={18} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
+              Follow-up de Orcamentos
+            </h1>
+            <p className="text-xs text-gray-500">Recuperacao de orcamentos perdidos por cadencia — {selectedLabel}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
-            Follow-up de Orcamentos
-          </h1>
-          <p className="text-xs text-gray-500">Recuperacao de orcamentos perdidos por cadencia — julho 2026</p>
+        <div className="relative">
+          <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
+            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
+            style={{ background: "rgba(202,178,161,0.08)", border: "1px solid rgba(202,178,161,0.15)", color: "#cab2a1" }}>
+            {availableMonths.map((m) => (
+              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>{m.label}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { Target, TrendingUp, DollarSign, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Target, TrendingUp, DollarSign, Users, ChevronDown } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -17,6 +17,8 @@ import {
   groupByStrategy,
   fmtBRL,
   fmtPct,
+  filterByMonth,
+  getAvailableMonths,
 } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -36,34 +38,64 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function EstrategiasPage() {
-  const [contatos] = useData("contatos", defaultContatos);
-  const [agenda] = useData("agenda", defaultAgenda);
-  const [vendas] = useData("vendas", defaultVendas);
+  const [contatosRaw] = useData("contatos", defaultContatos);
+  const [agendaRaw] = useData("agenda", defaultAgenda);
+  const [vendasRaw] = useData("vendas", defaultVendas);
+
+  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
+  const availableMonths = useMemo(
+    () => getAvailableMonths([
+      { data: contatosRaw as any[], dateField: "dataContato" },
+      { data: vendasRaw as any[], dateField: "dataVenda" },
+      { data: agendaRaw as any[], dateField: "dataAgendamento" },
+    ]),
+    [contatosRaw, vendasRaw, agendaRaw]
+  );
+
+  const contatos = useMemo(() => filterByMonth(contatosRaw as any[], "dataContato", selectedMonth), [contatosRaw, selectedMonth]);
+  const agenda = useMemo(() => filterByMonth(agendaRaw as any[], "dataAgendamento", selectedMonth), [agendaRaw, selectedMonth]);
+  const vendas = useMemo(() => filterByMonth(vendasRaw as any[], "dataVenda", selectedMonth), [vendasRaw, selectedMonth]);
 
   const estrategias = useMemo(
-    () => groupByStrategy(contatos as any[], agenda as any[], vendas as any[]),
+    () => groupByStrategy(contatos, agenda, vendas),
     [contatos, agenda, vendas]
   );
 
-  const totalContatos = (contatos as any[]).length;
-  const totalVendas = (vendas as any[]).length;
-  const totalValor = (vendas as any[]).reduce((a: number, v: any) => a + (Number(v.valorVendido) || 0), 0);
+  const totalContatos = contatos.length;
+  const totalVendas = vendas.length;
+  const totalValor = vendas.reduce((a: number, v: any) => a + (Number(v.valorVendido) || 0), 0);
+
+  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
 
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
-        >
-          <Target size={18} className="text-white" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
+          >
+            <Target size={18} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
+              Estrategias e Campanhas
+            </h1>
+            <p className="text-xs text-gray-500">Desempenho por campanha e midia — {selectedLabel}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
-            Estrategias e Campanhas
-          </h1>
-          <p className="text-xs text-gray-500">Desempenho por campanha e midia — julho 2026</p>
+        <div className="relative">
+          <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
+            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
+            style={{ background: "rgba(202,178,161,0.08)", border: "1px solid rgba(202,178,161,0.15)", color: "#cab2a1" }}>
+            {availableMonths.map((m) => (
+              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>{m.label}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
         </div>
       </div>
 

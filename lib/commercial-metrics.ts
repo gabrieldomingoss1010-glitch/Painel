@@ -3,6 +3,68 @@
 // ============================================================
 // Nunca retorna NaN, Infinity ou undefined em calculos.
 
+// ============================================================
+// DATE UTILITIES — Formato brasileiro DD/MM/YYYY
+// ============================================================
+
+/** Converte string DD/MM/YYYY ou YYYY-MM-DD para Date */
+export function parseDateBR(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  
+  // Formato brasileiro DD/MM/YYYY
+  if (dateStr.includes("/")) {
+    const parts = dateStr.split("/");
+    if (parts.length >= 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2].split(" ")[0], 10);
+      const d = new Date(year, month, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+  
+  // Fallback ISO YYYY-MM-DD
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** Extrai "YYYY-MM" de uma string de data */
+export function getMonthKeyFromDate(dateStr: string): string | null {
+  const d = parseDateBR(dateStr);
+  if (!d) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/** Filtra array por mes (YYYY-MM) usando um campo de data */
+export function filterByMonth(arr: any[], dateField: string, monthKey: string): any[] {
+  return arr.filter((item) => {
+    const key = getMonthKeyFromDate(item[dateField]);
+    return key === monthKey;
+  });
+}
+
+/** Retorna lista de meses disponiveis [{key: "2026-07", label: "jul/2026"}, ...] */
+export function getAvailableMonths(datasets: { data: any[]; dateField: string }[]): { key: string; label: string }[] {
+  const monthSet = new Set<string>();
+  
+  datasets.forEach(({ data, dateField }) => {
+    data.forEach((item) => {
+      const key = getMonthKeyFromDate(item[dateField]);
+      if (key) monthSet.add(key);
+    });
+  });
+  
+  return Array.from(monthSet)
+    .sort()
+    .reverse()
+    .map((key) => {
+      const [year, month] = key.split("-");
+      const d = new Date(Number(year), Number(month) - 1, 1);
+      const label = d.toLocaleString("pt-BR", { month: "short", year: "numeric" }).replace(".", "");
+      return { key, label };
+    });
+}
+
 /** Divisao segura — retorna 0 quando denominador for zero */
 export function safeDivide(a: number, b: number): number {
   if (!b || !isFinite(b) || b === 0) return 0;

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Users, CalendarCheck, TrendingUp, DollarSign,
   Heart, Star, AlertCircle, Award, Target,
-  Video, Repeat, Phone, UserCheck,
+  Video, Repeat, Phone, UserCheck, ChevronDown,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -27,6 +27,8 @@ import {
   fmtBRL,
   fmtPct,
   safeDivide,
+  filterByMonth,
+  getAvailableMonths,
 } from "@/lib/commercial-metrics";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -49,53 +51,92 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function DashboardPage() {
-  const [contatos] = useData("contatos", defaultContatos);
-  const [agenda] = useData("agenda", defaultAgenda);
-  const [oportunidades] = useData("oportunidades", defaultOportunidades);
-  const [vendas] = useData("vendas", defaultVendas);
-  const [followUps] = useData("followUps", defaultFollowUps);
-  const [indicacoes] = useData("indicacoes", defaultIndicacoes);
+  const [contatosRaw] = useData("contatos", defaultContatos);
+  const [agendaRaw] = useData("agenda", defaultAgenda);
+  const [oportunidadesRaw] = useData("oportunidades", defaultOportunidades);
+  const [vendasRaw] = useData("vendas", defaultVendas);
+  const [followUpsRaw] = useData("followUps", defaultFollowUps);
+  const [indicacoesRaw] = useData("indicacoes", defaultIndicacoes);
+
+  // Default to current month
+  const defaultMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
+  const availableMonths = useMemo(
+    () =>
+      getAvailableMonths([
+        { data: contatosRaw as any[], dateField: "dataContato" },
+        { data: vendasRaw as any[], dateField: "dataVenda" },
+        { data: agendaRaw as any[], dateField: "dataAgendamento" },
+      ]),
+    [contatosRaw, vendasRaw, agendaRaw]
+  );
+
+  // Filtered data
+  const contatos = useMemo(() => filterByMonth(contatosRaw as any[], "dataContato", selectedMonth), [contatosRaw, selectedMonth]);
+  const agenda = useMemo(() => filterByMonth(agendaRaw as any[], "dataAgendamento", selectedMonth), [agendaRaw, selectedMonth]);
+  const oportunidades = useMemo(() => filterByMonth(oportunidadesRaw as any[], "data", selectedMonth), [oportunidadesRaw, selectedMonth]);
+  const vendas = useMemo(() => filterByMonth(vendasRaw as any[], "dataVenda", selectedMonth), [vendasRaw, selectedMonth]);
+  const followUps = useMemo(() => filterByMonth(followUpsRaw as any[], "dataFollowUp", selectedMonth), [followUpsRaw, selectedMonth]);
+  const indicacoes = useMemo(() => filterByMonth(indicacoesRaw as any[], "data", selectedMonth), [indicacoesRaw, selectedMonth]);
 
   const kpis = useMemo(
     () =>
-      calcDashboardKPIs(
-        contatos as any[],
-        agenda as any[],
-        oportunidades as any[],
-        vendas as any[],
-        followUps as any[],
-        indicacoes as any[]
-      ),
+      calcDashboardKPIs(contatos, agenda, oportunidades, vendas, followUps, indicacoes),
     [contatos, agenda, oportunidades, vendas, followUps, indicacoes]
   );
 
   const motivosPerdas = useMemo(
-    () => groupByMotivoPerdas(oportunidades as any[]),
+    () => groupByMotivoPerdas(oportunidades),
     [oportunidades]
   );
 
   const videosData = useMemo(
-    () => groupByVideo(contatos as any[], vendas as any[]),
+    () => groupByVideo(contatos, vendas),
     [contatos, vendas]
   );
+
+  const selectedLabel = availableMonths.find((m) => m.key === selectedMonth)?.label || selectedMonth;
 
   const BAR_COLORS = ["#cab2a1", "#a78b7a", "#8b6b5a", "#6d4f4f", "#543c3c"];
 
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
-        >
-          <TrendingUp size={18} className="text-white" />
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #cab2a1 0%, #543c3c 100%)" }}
+          >
+            <TrendingUp size={18} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
+              Painel CEO
+            </h1>
+            <p className="text-xs text-gray-500">Visao executiva do comercial — {selectedLabel}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-bold font-display" style={{ color: "#f0ece8" }}>
-            Painel CEO
-          </h1>
-          <p className="text-xs text-gray-500">Visao executiva do comercial — julho 2026</p>
+        {/* Month Selector */}
+        <div className="relative">
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="appearance-none pl-4 pr-9 py-2 rounded-xl text-sm font-semibold cursor-pointer outline-none"
+            style={{
+              background: "rgba(202,178,161,0.08)",
+              border: "1px solid rgba(202,178,161,0.15)",
+              color: "#cab2a1",
+            }}
+          >
+            {availableMonths.map((m) => (
+              <option key={m.key} value={m.key} style={{ background: "#111118", color: "#f0ece8" }}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#cab2a1" }} />
         </div>
       </div>
 

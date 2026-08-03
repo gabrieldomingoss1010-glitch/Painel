@@ -268,7 +268,10 @@ export function groupByMotivoPerdas(oportunidades: any[]): {
   motivo: string;
   count: number;
 }[] {
-  const perdidas = oportunidades.filter((o) => o.resultado === "Perdeu");
+  const perdidas = oportunidades.filter((o) => {
+    const res = String(o.resultado || "").trim().toLowerCase();
+    return res === "perdeu" || res === "não fechado" || res === "nao fechado" || res === "sem interesse" || res === "oportunidade não trabalhada" || res === "oportunidade nao trabalhada";
+  });
   const counts: Record<string, number> = {};
   perdidas.forEach((o) => {
     const m = o.motivoPerda || "Nao informado";

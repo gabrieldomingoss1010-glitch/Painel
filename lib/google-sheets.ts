@@ -17,54 +17,93 @@ export const SHEETS_CONFIG = [
   {
     id: "contatos",
     label: "Contatos",
+    desc: "Todos os contatos recebidos (leads, origens, estrategias)",
+    headers: [
+      "ID", "Data", "Nome", "Telefone", "Origem", "Estrategia", "Video", "Qualificado",
+      "Responsavel", "Prospectado", "DataProspeccao", "Agendado", "DataAgendamento", "Status", "Observacao",
+    ],
     keys: [
       "idContato", "dataContato", "nomeCliente", "telefone", "origem", "estrategiaCampanha",
       "videoAnuncioCriativo", "clienteQualificado", "responsavel", "foiProspectado", "dataProspeccao",
       "foiAgendado", "dataAgendamento", "statusAtual", "observacao",
     ],
+    filename: "contatos.csv",
   },
   {
     id: "agenda",
     label: "Agenda",
+    desc: "Agendamentos com status (Compareceu, Cancelou, Remarcou, Faltou)",
+    headers: [
+      "ID", "IDContato", "Data", "Cliente", "TipoAtendimento", "Profissional",
+      "Responsavel", "Origem", "Estrategia", "Status", "DataOriginal", "DataRemarcada", "Observacao",
+    ],
     keys: [
       "idAgendamento", "idContato", "dataAgendamento", "nomeCliente", "tipoAtendimento", "profissional",
       "responsavelAgendamento", "origem", "estrategia", "statusAgenda", "dataOriginal", "dataRemarcada", "observacao",
     ],
+    filename: "agenda.csv",
   },
   {
     id: "oportunidades",
     label: "Oportunidades",
+    desc: "Ofertas realizadas com resultado e motivo de perda",
+    headers: [
+      "ID", "Data", "IDCliente", "Cliente", "Tipo", "Oferta", "Resultado",
+      "ValorOfertado", "ValorVendido", "Responsavel", "MotivoPerdas", "Observacao",
+    ],
     keys: [
       "idOportunidade", "data", "idClienteContato", "cliente", "tipoOportunidade", "ofertaRealizada",
       "resultado", "valorOfertado", "valorVendido", "responsavel", "motivoPerda", "observacao",
     ],
+    filename: "oportunidades.csv",
   },
   {
     id: "vendas",
     label: "Vendas",
+    desc: "Todas as vendas fechadas com origem e responsaveis",
+    headers: [
+      "ID", "Data", "IDCliente", "Cliente", "TipoVenda", "Produto", "Valor",
+      "Origem", "Estrategia", "Video", "Qualificado", "Recepcao", "Comercial",
+      "NovaOuRenovacao", "RecuperadaFU", "IDFollowUp", "Observacao",
+    ],
     keys: [
       "idVenda", "dataVenda", "idClienteContato", "cliente", "tipoVenda", "produtoPlano", "valorVendido",
       "origem", "estrategia", "videoAnuncioCriativo", "clienteQualificado", "responsavelRecepcao",
       "responsavelComercial", "vendaNovaOuRenovacao", "recuperadaPorFollowUp", "idFollowUp", "observacao",
     ],
+    filename: "vendas.csv",
   },
   {
     id: "followUps",
     label: "Follow-ups",
+    desc: "Acompanhamento de orcamentos nao fechados por cadencia",
+    headers: [
+      "ID", "IDContato", "Cliente", "DataOrcamento", "ValorOrcamento", "DataFU",
+      "Cadencia", "Canal", "Responsavel", "Resultado", "Recuperada", "ValorRecuperado",
+      "MotivoPerdas", "ProximoContato", "Observacao",
+    ],
     keys: [
       "idFollowUp", "idContato", "cliente", "dataOrcamento", "valorOrcamento", "dataFollowUp",
       "cadencia", "canal", "responsavel", "resultado", "vendaRecuperada", "valorRecuperado",
       "motivoPerda", "proximoContato", "observacao",
     ],
+    filename: "follow_ups.csv",
   },
   {
     id: "indicacoes",
     label: "Indicacoes",
+    desc: "Registro de indicacoes solicitadas e seus resultados",
+    headers: [
+      "ID", "Data", "ClienteAtendido", "SolicitadaIndicacao", "IndicouAlguem",
+      "QtdIndicados", "NomeIndicado", "Telefone", "Agendou", "Compareceu", "Comprou",
+      "ValorVendido", "Responsavel",
+    ],
     keys: [
       "id", "data", "clienteAtendido", "indicacaoSolicitada", "indicouAlguem",
       "quantidadeIndicados", "nomeIndicado", "telefone", "indicadoAgendou", "indicadoCompareceu",
       "indicadoComprou", "valorVendido", "responsavel",
     ],
+    filename: "indicacoes.csv",
   },
 ];
 

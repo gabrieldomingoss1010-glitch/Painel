@@ -361,7 +361,7 @@ export default function DadosPage() {
               {/* Resumo dos datasets */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {SHEETS.map((sheet) => {
-                  const Icon = sheet.icon;
+                  const Icon = (sheet as any).icon || Users;
                   const count = (getters[sheet.id] ?? []).length;
                   return (
                     <div
@@ -386,7 +386,7 @@ export default function DadosPage() {
           {/* ABAS: Planilhas individuais */}
           {SHEETS.map((sheet) => {
             if (activeTab !== sheet.id) return null;
-            const Icon = sheet.icon;
+            const Icon = (sheet as any).icon || Users;
             const data = getters[sheet.id] ?? [];
             return (
               <div key={sheet.id} className="card p-6 space-y-6">

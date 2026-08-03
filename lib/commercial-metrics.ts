@@ -336,7 +336,7 @@ export function calcDashboardKPIs(
   const indicacoesColetadas = indicacoes.filter((i) => i.indicouAlguem === "Sim").length;
   const indicacoesSolicitadas = indicacoes.filter((i) => i.indicacaoSolicitada === "Sim").length;
   const prospectados = contatos.filter((c) => 
-    String(c.foiProspectado).trim() === "Sim" || (c.dataProspeccao && String(c.dataProspeccao).trim() !== "")
+    String(c.foiProspectado).trim().toLowerCase() === "sim" || (c.dataProspeccao && String(c.dataProspeccao).trim() !== "")
   ).length;
 
   const taxaProspeccao = safeDivide(prospectados, totalContatos) * 100;

@@ -20,13 +20,12 @@ export const SHEETS_CONFIG = [
     desc: "Todos os contatos recebidos (leads, origens, estrategias)",
     defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=1794483408&single=true&output=csv",
     headers: [
-      "ID", "Data", "Nome", "Telefone", "Origem", "Estrategia", "Video", "Qualificado",
-      "Responsavel", "Prospectado", "DataProspeccao", "Agendado", "DataAgendamento", "Status", "Observacao",
+      "ID", "Data", "Nome", "Telefone", "Origem", "Estrategia",
+      "Responsavel", "Prospectado", "DataProspeccao", "DataAgendamento", "Observacao",
     ],
     keys: [
       "idContato", "dataContato", "nomeCliente", "telefone", "origem", "estrategiaCampanha",
-      "videoAnuncioCriativo", "clienteQualificado", "responsavel", "foiProspectado", "dataProspeccao",
-      "foiAgendado", "dataAgendamento", "statusAtual", "observacao",
+      "responsavel", "foiProspectado", "dataProspeccao", "dataAgendamento", "observacao",
     ],
     filename: "contatos.csv",
   },

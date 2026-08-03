@@ -36,11 +36,11 @@ export const SHEETS_CONFIG = [
     desc: "Agendamentos com status (Compareceu, Cancelou, Remarcou, Faltou)",
     defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=627165126&single=true&output=csv",
     headers: [
-      "ID", "IDContato", "Data", "Cliente", "TipoAtendimento", "Profissional",
+      "ID", "IDContato", "Data", "Cliente", "Profissional",
       "Responsavel", "Origem", "Estrategia", "Status", "DataOriginal", "DataRemarcada", "Observacao",
     ],
     keys: [
-      "idAgendamento", "idContato", "dataAgendamento", "nomeCliente", "tipoAtendimento", "profissional",
+      "idAgendamento", "idContato", "dataAgendamento", "nomeCliente", "profissional",
       "responsavelAgendamento", "origem", "estrategia", "statusAgenda", "dataOriginal", "dataRemarcada", "observacao",
     ],
     filename: "agenda.csv",

@@ -42,7 +42,9 @@ export default function FollowUpPage() {
   const [followUpsRaw] = useData("followUps", defaultFollowUps);
 
   const defaultMonth = `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const [selectedPeriod, setSelectedPeriod] = useState(defaultMonth);
+  const [globalSettings, setGlobalSettings] = useData("globalSettings", { periodo: defaultMonth });
+  const selectedPeriod = globalSettings.periodo;
+  const setSelectedPeriod = (val: string) => setGlobalSettings({ ...globalSettings, periodo: val });
 
   const availablePeriods = useMemo(
     () => getAvailablePeriods([{ data: followUpsRaw as any[], dateField: "dataFollowUp" }]),

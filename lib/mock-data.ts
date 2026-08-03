@@ -13,7 +13,7 @@ export const kpiData = {
 };
 
 export const globalSettings = {
-  periodo: "Mensal", // 'Hoje', 'Semana', 'Mensal', 'Trimestral', 'Anual'
+  periodo: `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`,
 };
 
 export const atendimentosBrutos = [

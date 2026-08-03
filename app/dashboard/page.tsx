@@ -59,9 +59,11 @@ export default function DashboardPage() {
   const [followUpsRaw] = useData("followUps", defaultFollowUps);
   const [indicacoesRaw] = useData("indicacoes", defaultIndicacoes);
 
-  // Default to current month
+  // Default to current month via globalSettings
   const defaultMonth = `mes:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const [selectedPeriod, setSelectedPeriod] = useState(defaultMonth);
+  const [globalSettings, setGlobalSettings] = useData("globalSettings", { periodo: defaultMonth });
+  const selectedPeriod = globalSettings.periodo;
+  const setSelectedPeriod = (val: string) => setGlobalSettings({ ...globalSettings, periodo: val });
 
   const availablePeriods = useMemo(
     () =>

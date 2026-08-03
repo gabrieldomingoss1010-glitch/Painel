@@ -18,6 +18,7 @@ export const SHEETS_CONFIG = [
     id: "contatos",
     label: "Contatos",
     desc: "Todos os contatos recebidos (leads, origens, estrategias)",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=1794483408&single=true&output=csv",
     headers: [
       "ID", "Data", "Nome", "Telefone", "Origem", "Estrategia", "Video", "Qualificado",
       "Responsavel", "Prospectado", "DataProspeccao", "Agendado", "DataAgendamento", "Status", "Observacao",
@@ -33,6 +34,7 @@ export const SHEETS_CONFIG = [
     id: "agenda",
     label: "Agenda",
     desc: "Agendamentos com status (Compareceu, Cancelou, Remarcou, Faltou)",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=627165126&single=true&output=csv",
     headers: [
       "ID", "IDContato", "Data", "Cliente", "TipoAtendimento", "Profissional",
       "Responsavel", "Origem", "Estrategia", "Status", "DataOriginal", "DataRemarcada", "Observacao",
@@ -47,6 +49,7 @@ export const SHEETS_CONFIG = [
     id: "oportunidades",
     label: "Oportunidades",
     desc: "Ofertas realizadas com resultado e motivo de perda",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=2009850132&single=true&output=csv",
     headers: [
       "ID", "Data", "IDCliente", "Cliente", "Tipo", "Oferta", "Resultado",
       "ValorOfertado", "ValorVendido", "Responsavel", "MotivoPerdas", "Observacao",
@@ -61,6 +64,7 @@ export const SHEETS_CONFIG = [
     id: "vendas",
     label: "Vendas",
     desc: "Todas as vendas fechadas com origem e responsaveis",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=406350692&single=true&output=csv",
     headers: [
       "ID", "Data", "IDCliente", "Cliente", "TipoVenda", "Produto", "Valor",
       "Origem", "Estrategia", "Video", "Qualificado", "Recepcao", "Comercial",
@@ -77,6 +81,7 @@ export const SHEETS_CONFIG = [
     id: "followUps",
     label: "Follow-ups",
     desc: "Acompanhamento de orcamentos nao fechados por cadencia",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=2113829959&single=true&output=csv",
     headers: [
       "ID", "IDContato", "Cliente", "DataOrcamento", "ValorOrcamento", "DataFU",
       "Cadencia", "Canal", "Responsavel", "Resultado", "Recuperada", "ValorRecuperado",
@@ -93,6 +98,7 @@ export const SHEETS_CONFIG = [
     id: "indicacoes",
     label: "Indicacoes",
     desc: "Registro de indicacoes solicitadas e seus resultados",
+    defaultUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=1013167176&single=true&output=csv",
     headers: [
       "ID", "Data", "ClienteAtendido", "SolicitadaIndicacao", "IndicouAlguem",
       "QtdIndicados", "NomeIndicado", "Telefone", "Agendou", "Compareceu", "Comprou",

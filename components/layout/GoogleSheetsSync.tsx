@@ -81,29 +81,29 @@ export default function GoogleSheetsSync() {
     let dynamicOk = false;
     try {
       const savedUrls = localStorage.getItem("palomares_gs_urls");
-      if (savedUrls) {
-        const urls = JSON.parse(savedUrls);
-        const setters: Record<string, any> = {
-          contatos: setContatos,
-          agenda: setAgenda,
-          oportunidades: setOportunidades,
-          vendas: setVendas,
-          followUps: setFollowUps,
-          indicacoes: setIndicacoes,
-        };
+      const customUrls = savedUrls ? JSON.parse(savedUrls) : {};
+      const setters: Record<string, any> = {
+        contatos: setContatos,
+        agenda: setAgenda,
+        oportunidades: setOportunidades,
+        vendas: setVendas,
+        followUps: setFollowUps,
+        indicacoes: setIndicacoes,
+      };
 
-        const promises = SHEETS_CONFIG.map(async (sheet) => {
-          if (urls[sheet.id]) {
-            const data = await fetchDynamicSheet(urls[sheet.id], sheet.keys);
-            if (data && data.length > 0) {
-              setters[sheet.id](data);
-            }
+      const promises = SHEETS_CONFIG.map(async (sheet) => {
+        // Use custom URL from localStorage, or fall back to the hardcoded defaultUrl
+        const url = customUrls[sheet.id] || sheet.defaultUrl;
+        if (url) {
+          const data = await fetchDynamicSheet(url, sheet.keys);
+          if (data && data.length > 0) {
+            setters[sheet.id](data);
           }
-        });
+        }
+      });
 
-        await Promise.allSettled(promises);
-        dynamicOk = true;
-      }
+      await Promise.allSettled(promises);
+      dynamicOk = true;
     } catch (err: any) {
       errors.push(`Planilhas Comerciais: ${err?.message ?? "Erro desconhecido"}`);
     }

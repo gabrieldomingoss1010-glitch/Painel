@@ -192,25 +192,36 @@ export function groupByStrategy(
   convComparecimento: number;
   convFechamento: number;
 }[] {
-  const estrategias = new Set([
-    ...contatos.map((c) => c.estrategiaCampanha),
-    ...agenda.map((a) => a.estrategia),
-    ...vendas.map((v) => v.estrategia),
+  const normalize = (s: any) => String(s || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  const allStrats = new Set([
+    ...contatos.map((c) => normalize(c.estrategiaCampanha)),
+    ...agenda.map((a) => normalize(a.estrategia)),
+    ...vendas.map((v) => normalize(v.estrategia)),
   ]);
 
-  return Array.from(estrategias)
+  return Array.from(allStrats)
     .filter(Boolean)
     .map((est) => {
-      const ctts = contatos.filter((c) => c.estrategiaCampanha === est);
-      const ags = agenda.filter((a) => a.estrategia === est);
+      // achar a versão "bonita" do nome na primeira vez que aparece
+      let displayLabel = est;
+      const original = 
+        contatos.find((c) => normalize(c.estrategiaCampanha) === est)?.estrategiaCampanha ||
+        agenda.find((a) => normalize(a.estrategia) === est)?.estrategia ||
+        vendas.find((v) => normalize(v.estrategia) === est)?.estrategia;
+      
+      if (original) displayLabel = String(original).trim();
+
+      const ctts = contatos.filter((c) => normalize(c.estrategiaCampanha) === est);
+      const ags = agenda.filter((a) => normalize(a.estrategia) === est);
       const compareceram = ags.filter((a) =>
         ["Compareceu", "Fechou", "Vendeu"].includes(a.statusAgenda)
       );
-      const vds = vendas.filter((v) => v.estrategia === est);
+      const vds = vendas.filter((v) => normalize(v.estrategia) === est);
       const valor = safeSum(vds, "valorVendido");
 
       return {
-        estrategia: est,
+        estrategia: displayLabel,
         contatos: ctts.length,
         agendamentos: ags.length,
         compareceram: compareceram.length,

@@ -542,7 +542,8 @@ export function calcFollowUpKPIs(followUps: any[]) {
 
   const cadencias = ["1 dia", "3 dias", "7 dias", "15 dias", "30 dias"];
   const porCadencia = cadencias.map((cad) => {
-    const items = followUps.filter((f) => f.cadencia === cad);
+    const cadNum = cad.replace(/\D/g, "");
+    const items = followUps.filter((f) => String(f.cadencia).replace(/\D/g, "") === cadNum);
     const rec = items.filter((f) => f.vendaRecuperada === "Sim").length;
     const valRec = safeSum(items, "valorRecuperado");
     return {

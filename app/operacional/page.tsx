@@ -136,7 +136,7 @@ export default function OperacionalPage() {
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Vendas</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           <KPICard title="Planos Vendidos" value={kpis.planosVendidos} icon={<Star size={18} />} color="#cab2a1" delay={0} />
           <KPICard
             title="Valor Total Vendido"
@@ -159,6 +159,13 @@ export default function OperacionalPage() {
             color="#f87171"
             delay={180}
           />
+          <KPICard
+            title="Valor Nao Fechado"
+            value={fmtBRL(kpis.valorOrcamentosNaoFechados)}
+            icon={<DollarSign size={18} />}
+            color="#f87171"
+            delay={240}
+          />
         </div>
       </section>
 
@@ -168,15 +175,9 @@ export default function OperacionalPage() {
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Indicacoes</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <KPICard title="Indicacoes Solicitadas" value={kpis.indSolicitadas} icon={<Heart size={18} />} color="#cab2a1" delay={0} />
+
           <KPICard title="Indicacoes Coletadas" value={kpis.indColetadas} icon={<Heart size={18} />} color="#a78b7a" delay={60} />
-          <KPICard
-            title="Taxa de Indicacao"
-            value={fmtPct(kpis.taxaIndicacao)}
-            icon={<TrendingUp size={18} />}
-            color="#4ade80"
-            delay={120}
-          />
+
         </div>
       </section>
 

@@ -467,3 +467,235 @@ export async function fetchDynamicSheet(url: string, keys: string[]): Promise<an
     return obj;
   });
 }
+
+/**
+ * Parses aggregated data from the new Agenda and Comercial sheets
+ * and expands them into the original 6 datasets expected by the app.
+ */
+export async function fetchAggregatedCommercialSheets(
+  agendaUrl: string,
+  comercialUrl: string
+) {
+  const [resAgenda, resComercial] = await Promise.all([
+    fetch(agendaUrl, { cache: "no-store" }),
+    fetch(comercialUrl, { cache: "no-store" }),
+  ]);
+
+  if (!resAgenda.ok || !resComercial.ok) {
+    throw new Error("Falha ao buscar planilhas agregadas (Agenda/Comercial)");
+  }
+
+  const parseCsvToObjects = (text: string) => {
+    const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
+    if (lines.length <= 1) return [];
+    
+    // Custom CSV parser handling quotes
+    const parseLine = (line: string) => {
+      const result = [];
+      let current = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') inQuotes = !inQuotes;
+        else if (ch === "," && !inQuotes) {
+          result.push(current.trim());
+          current = "";
+        } else current += ch;
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseLine(lines[0]);
+    return lines.slice(1).map((line) => {
+      const cols = parseLine(line);
+      const obj: any = {};
+      headers.forEach((h, i) => {
+        let val = cols[i] ? cols[i].replace(/^"|"$/g, "").trim() : "";
+        if (val !== "" && !val.includes("/")) {
+          const numStr = val.replace(",", ".");
+          if (!isNaN(Number(numStr))) val = Number(numStr) as any;
+        }
+        obj[h] = val;
+      });
+      return obj;
+    });
+  };
+
+  const agendaRaw = parseCsvToObjects(await resAgenda.text());
+  const comercialRaw = parseCsvToObjects(await resComercial.text());
+
+  const contatos: any[] = [];
+  const agenda: any[] = [];
+  const oportunidades: any[] = [];
+  const vendas: any[] = [];
+  const followUps: any[] = [];
+  const indicacoes: any[] = [];
+
+  let idCounter = 1;
+  const getId = (prefix: string) => `${prefix}-${String(idCounter++).padStart(4, "0")}`;
+  const defaultDate = "01/01/2026"; // Fallback if missing
+
+  // Process comercial (Contacts, Strategies, FollowUps)
+  for (const row of comercialRaw) {
+    const data = row["Data do agendamento"] || row["Data"] || defaultDate;
+    
+    const contatosCount = Number(row["Contatos Dia"]) || 0;
+    const traficCount = Number(row["Trafego"]) || 0;
+    const aniversariantesCount = Number(row["Aniversariantes"]) || 0;
+    const tBaixoCount = Number(row["T. BAIXO"]) || 0;
+
+    let remainingContatos = contatosCount;
+
+    const addContatos = (count: number, estrategia: string) => {
+      for (let i = 0; i < count; i++) {
+        if (remainingContatos <= 0) break;
+        contatos.push({
+          idContato: getId("CT"),
+          dataContato: data,
+          nomeCliente: "Cliente",
+          estrategiaCampanha: estrategia,
+          foiProspectado: "Sim",
+        });
+        remainingContatos--;
+      }
+    };
+
+    addContatos(traficCount, "Tráfego");
+    addContatos(aniversariantesCount, "Aniversariantes");
+    addContatos(tBaixoCount, "T. Baixo");
+    addContatos(remainingContatos, "Orgânico");
+
+    const fuCount = Number(row["Follow_up"]) || 0;
+    const fuRecup = Number(row["Follow_up Recuperado"]) || 0;
+    const fuValor = Number(row["Valor de Follow_up recuperado"]) || 0;
+    const fuTicket = fuRecup > 0 ? fuValor / fuRecup : 0;
+
+    for (let i = 0; i < fuCount; i++) {
+      const isRecuperado = i < fuRecup;
+      followUps.push({
+        idFollowUp: getId("FU"),
+        dataFollowUp: data,
+        vendaRecuperada: isRecuperado ? "Sim" : "Não",
+        valorRecuperado: isRecuperado ? fuTicket : 0,
+        cadencia: "7 dias",
+      });
+    }
+  }
+
+  const parseStrategyString = (str: any): { count: number; strategy: string }[] => {
+    if (str === undefined || str === null || str === "") return [];
+    const s = String(str);
+    if (!isNaN(Number(s))) {
+      const n = Number(s);
+      return n > 0 ? [{ count: n, strategy: "Sem classificação" }] : [];
+    }
+    const results: { count: number; strategy: string }[] = [];
+    const parts = s.split(",");
+    for (const part of parts) {
+      const match = part.trim().match(/^(\d+)\s*-\s*(.+)$/);
+      if (match) {
+        let st = match[2].trim();
+        if (st.toLowerCase() === "trafego") st = "Tráfego";
+        if (st.toLowerCase() === "indicacao") st = "Indicação";
+        results.push({ count: Number(match[1]), strategy: st });
+      } else {
+        const numMatch = part.match(/\d+/);
+        if (numMatch) {
+          results.push({ count: Number(numMatch[0]), strategy: "Sem classificação" });
+        }
+      }
+    }
+    return results;
+  };
+
+  // Process agenda (Agenda, Vendas, Oportunidades, Indicacoes)
+  for (const row of agendaRaw) {
+    const data = row["Data do agendamento"] || row["Data"] || defaultDate;
+
+    const compareceu = Number(row["Compareceu"]) || 0;
+    const faltou = Number(row["Faltou"]) || 0;
+    const remarcou = Number(row["Remarcou"]) || 0;
+    const cancelou = Number(row["Cancelou"]) || 0;
+    const agendado = Number(row["Agendado"]) || 0;
+    const totalAgendamentos = Number(row["Agendamentos Total"]) || 0;
+
+    const addAgenda = (count: number, status: string) => {
+      for (let i = 0; i < count; i++) {
+        agenda.push({
+          idAgendamento: getId("AGE"),
+          dataAgendamento: data,
+          statusAgenda: status,
+          profissional: "Profissional",
+        });
+      }
+    };
+
+    addAgenda(compareceu, "Compareceu");
+    addAgenda(faltou, "Faltou");
+    addAgenda(remarcou, "Remarcou");
+    addAgenda(cancelou, "Cancelou");
+    addAgenda(agendado, "Agendado");
+
+    const sumStatus = compareceu + faltou + remarcou + cancelou + agendado;
+    if (totalAgendamentos > sumStatus) {
+      addAgenda(totalAgendamentos - sumStatus, "Agendado");
+    }
+
+    const vendasParsed = parseStrategyString(row["QTD de clientes que fecharam plano"]);
+    const vendasCount = vendasParsed.reduce((acc, curr) => acc + curr.count, 0);
+    const vendasValor = Number(row["Valor dos Planos"]) || Number(row["Valor dos planos"]) || 0;
+    const ticketVenda = vendasCount > 0 ? vendasValor / vendasCount : 0;
+
+    for (const item of vendasParsed) {
+      for (let i = 0; i < item.count; i++) {
+        vendas.push({
+          idVenda: getId("VD"),
+          dataVenda: data,
+          valorVendido: ticketVenda,
+          estrategia: item.strategy,
+          responsavelComercial: "Comercial",
+          responsavelRecepcao: "Recepção",
+        });
+      }
+    }
+
+    const orcamentosCount = Number(row["Que nao Fecharam Orcamentos"]) || 0;
+    const orcamentosValor = Number(row["Valor que nao fechou"]) || 0;
+    
+    for (let i = 0; i < orcamentosCount; i++) {
+      oportunidades.push({
+        idOportunidade: getId("OP"),
+        data: data,
+        tipoOportunidade: "Orçamento",
+        resultado: "Perdeu",
+        valorOfertado: orcamentosCount > 0 ? orcamentosValor / orcamentosCount : 0,
+        motivoPerda: "Não Informado",
+      });
+    }
+
+    const avaliacoesCount = Number(row["QTD AVALIAÇÕES"]) || 0;
+    for (let i = 0; i < avaliacoesCount; i++) {
+      oportunidades.push({
+        idOportunidade: getId("OP"),
+        data: data,
+        tipoOportunidade: "Avaliação",
+        resultado: "Pendente",
+        valorOfertado: 0,
+        motivoPerda: "Não Informado",
+      });
+    }
+
+    const indCount = Number(row["Indicaçoes coletadas"]) || 0;
+    for (let i = 0; i < indCount; i++) {
+      indicacoes.push({
+        id: getId("IND"),
+        data: data,
+        indicacaoSolicitada: "Sim",
+        indicouAlguem: "Sim",
+      });
+    }
+  }
+
+  return { contatos, agenda, oportunidades, vendas, followUps, indicacoes };
+}

@@ -8,12 +8,13 @@
 // ============================================================
 
 /** Converte string DD/MM/YYYY ou YYYY-MM-DD para Date */
-export function parseDateBR(dateStr: string): Date | null {
+export function parseDateBR(dateStr: any): Date | null {
   if (!dateStr) return null;
+  const str = String(dateStr);
   
   // Formato brasileiro DD/MM/YYYY
-  if (dateStr.includes("/")) {
-    const parts = dateStr.split("/");
+  if (str.includes("/")) {
+    const parts = str.split("/");
     if (parts.length >= 3) {
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
@@ -24,7 +25,7 @@ export function parseDateBR(dateStr: string): Date | null {
   }
   
   // Fallback ISO YYYY-MM-DD
-  const d = new Date(dateStr);
+  const d = new Date(str);
   return isNaN(d.getTime()) ? null : d;
 }  
 /** Helper to get ISO week number */
@@ -344,7 +345,8 @@ export function calcDashboardKPIs(
     ["Compareceu"].includes(a.statusAgenda)
   ).length;
   const remarcacoes = agenda.filter((a) => a.statusAgenda === "Remarcou").length;
-  const totalOportunidades = oportunidades.length;
+  const totalOportunidades = oportunidades.filter(o => String(o.tipoOportunidade).toLowerCase() === "orçamento").length;
+  const avaliacoes = oportunidades.filter(o => String(o.tipoOportunidade).toLowerCase() === "avaliação").length;
   const totalFechamentos = vendas.length;
   const valorTotal = safeSum(vendas, "valorVendido");
   const indicacoesColetadas = indicacoes.filter((i) => i.indicouAlguem === "Sim").length;
@@ -404,6 +406,7 @@ export function calcDashboardKPIs(
     videoMaiorTicket,
     prospectados,
     indicacoesSolicitadas,
+    avaliacoes,
   };
 }
 
@@ -436,8 +439,13 @@ export function calcOperacionalKPIs(
   const ticketMedio = safeDivide(valorTotal, planosVendidos);
 
   const orcamentosNaoFechados = oportunidades.filter(
-    (o) => o.tipoOportunidade === "Orcamento" && o.resultado !== "Fechou"
+    (o) => safeTipo(o.tipoOportunidade) === "orçamento" && safeTipo(o.resultado) !== "fechou"
   ).length;
+
+  const valorOrcamentosNaoFechados = safeSum(
+    oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "orçamento" && safeTipo(o.resultado) !== "fechou"),
+    "valorOfertado"
+  );
 
   const motivosPerdas = groupByMotivoPerdas(oportunidades);
 
@@ -466,6 +474,7 @@ export function calcOperacionalKPIs(
     valorTotal,
     ticketMedio,
     orcamentosNaoFechados,
+    valorOrcamentosNaoFechados,
     motivosPerdas,
     totalAgendamentos,
     remarcacoes,
@@ -582,12 +591,13 @@ export function calcConsolidadoMensal(
 }[] {
   const meses: Record<string, any> = {};
 
-  const getMonthKey = (dateStr: string) => {
+  const getMonthKey = (dateStr: any) => {
     if (!dateStr) return null;
+    const str = String(dateStr);
     
     // Suporte para formato brasileiro (DD/MM/YYYY ou DD/MM/YYYY HH:mm)
-    if (dateStr.includes("/")) {
-      const parts = dateStr.split("/");
+    if (str.includes("/")) {
+      const parts = str.split("/");
       if (parts.length >= 3) {
         const day = parts[0];
         const month = parts[1];
@@ -597,7 +607,7 @@ export function calcConsolidadoMensal(
     }
     
     // Fallback padrão ISO (YYYY-MM-DD)
-    const d = new Date(dateStr);
+    const d = new Date(str);
     if (isNaN(d.getTime())) return null;
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
   };

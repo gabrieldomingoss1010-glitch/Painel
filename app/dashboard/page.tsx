@@ -145,10 +145,9 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
           <KPICard title="Contatos" value={kpis.totalContatos} icon={<Users size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Taxa de Prospeccao" value={fmtPct(kpis.taxaProspeccao)} icon={<TrendingUp size={18} />} color="#cab2a1" delay={30} />
           <KPICard title="Agendamentos" value={kpis.totalAgendamentos} icon={<CalendarCheck size={18} />} color="#a78b7a" delay={60} />
-          <KPICard title="Taxa de Agendamento" value={fmtPct(kpis.taxaAgendamento)} icon={<TrendingUp size={18} />} color="#a78b7a" delay={90} />
           <KPICard title="Comparecimentos" value={kpis.comparecimentos} icon={<UserCheck size={18} />} color="#8b6b5a" delay={120} />
+          <KPICard title="Quantidade de Avaliações" value={kpis.avaliacoes} icon={<Target size={18} />} color="#a08070" delay={150} />
           <KPICard title="Oportunidades" value={kpis.totalOportunidades} icon={<Target size={18} />} color="#b09080" delay={180} />
           <KPICard title="Fechamentos" value={kpis.totalFechamentos} icon={<Award size={18} />} color="#cab2a1" delay={240} />
         </div>
@@ -174,13 +173,6 @@ export default function DashboardPage() {
             color="#a78b7a"
             delay={60}
           />
-          <KPICard
-            title="Conversao Geral"
-            value={fmtPct(kpis.convGeral)}
-            icon={<TrendingUp size={18} />}
-            color="#8b6b5a"
-            delay={120}
-          />
           <KPICard title="Indicacoes Coletadas" value={kpis.indicacoesColetadas} icon={<Heart size={18} />} color="#c4a090" delay={180} />
           <KPICard title="Remarcacoes" value={kpis.remarcacoes} icon={<Repeat size={18} />} color="#f87171" delay={240} />
         </div>
@@ -196,11 +188,7 @@ export default function DashboardPage() {
             { label: "Melhor Estrategia", value: kpis.melhorEstrategia, color: "#4ade80", icon: <Star size={14} /> },
             { label: "Pior Estrategia", value: kpis.piorEstrategia, color: "#f87171", icon: <AlertCircle size={14} /> },
             { label: "Maior Motivo de Perda", value: kpis.maiorMotivoPerdas, color: "#fb923c", icon: <AlertCircle size={14} /> },
-            { label: "Melhor Recepcionista", value: kpis.melhorRecepcao, color: "#cab2a1", icon: <Award size={14} /> },
             { label: "Melhor Comercial", value: kpis.melhorComercial, color: "#cab2a1", icon: <Award size={14} /> },
-            { label: "Vendedor com Mais Clientes", value: kpis.videoMaisClientes || "-", color: "#a78b7a", icon: <Video size={14} /> },
-            { label: "vendedor que Mais Vendeu", value: kpis.videoMaisVendas || "-", color: "#8b6b5a", icon: <Video size={14} /> },
-            { label: "Vendedor de Maior ticket", value: kpis.videoMaiorTicket || "-", color: "#c4a090", icon: <Video size={14} /> },
           ].map((item, i) => (
             <div
               key={i}
@@ -230,7 +218,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {/* Motivos de Perda */}
         <div className="card p-5">
           <div className="mb-4">
@@ -264,87 +252,9 @@ export default function DashboardPage() {
             <div className="flex items-center justify-center h-[220px] text-gray-600 text-sm">
               Nenhuma perda registrada
             </div>
-          )}
-        </div>
-
-        {/* Performance por Video */}
-        <div className="card p-5">
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold" style={{ color: "#f0ece8" }}>
-              Performance por Video / Criativo
-            </h3>
-            <p className="text-xs text-gray-500">Contatos vs. vendas por anuncio</p>
-          </div>
-          {videosData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={videosData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis
-                  dataKey="video"
-                  tick={{ fill: "#6b7280", fontSize: 9 }}
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                  angle={-20}
-                  textAnchor="end"
-                />
-                <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="contatos" name="Contatos" fill="rgba(202,178,161,0.4)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-                <Bar dataKey="vendas" name="Vendas" fill="#cab2a1" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-[220px] text-gray-600 text-sm">
-              Nenhum dado de video encontrado
-            </div>
-          )}
+            )}
         </div>
       </div>
-
-      {/* Tabela de Videos */}
-      {videosData.length > 0 && (
-        <div className="card p-5">
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold" style={{ color: "#f0ece8" }}>
-              Ranking de Videos / Anuncios / Criativos
-            </h3>
-            <p className="text-xs text-gray-500">Comparativo completo de performance</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b" style={{ borderColor: "rgba(202,178,161,0.08)" }}>
-                  {["Video / Criativo", "Contatos", "Vendas", "Valor Vendido", "Ticket Medio"].map((h) => (
-                    <th
-                      key={h}
-                      className="pb-3 text-xs font-semibold text-right first:text-left pr-4"
-                      style={{ color: "rgba(202,178,161,0.6)" }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {videosData.map((v, i) => (
-                  <tr
-                    key={i}
-                    className="border-b last:border-0 hover:bg-white/[0.02] transition-colors"
-                    style={{ borderColor: "rgba(202,178,161,0.04)" }}
-                  >
-                    <td className="py-3 pr-4 font-medium" style={{ color: "#f0ece8" }}>{v.video}</td>
-                    <td className="py-3 pr-4 text-right" style={{ color: "#cab2a1" }}>{v.contatos}</td>
-                    <td className="py-3 pr-4 text-right" style={{ color: "#cab2a1" }}>{v.vendas}</td>
-                    <td className="py-3 pr-4 text-right text-gray-400">{fmtBRL(v.valorVendido)}</td>
-                    <td className="py-3 pr-4 text-right text-gray-400">{fmtBRL(v.ticketMedio)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

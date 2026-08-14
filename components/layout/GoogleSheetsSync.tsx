@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { RefreshCw, CloudDownload, CheckCircle, XCircle, Wifi } from "lucide-react";
-import { fetchSheetsData, fetchComercialSheetsData, fetchDynamicSheet, SHEETS_CONFIG } from "@/lib/google-sheets";
+import { fetchSheetsData, fetchComercialSheetsData, fetchAggregatedCommercialSheets } from "@/lib/google-sheets";
 import { useData } from "@/lib/data-store";
 
 const SYNC_INTERVAL_MS = 5 * 60 * 1000; // Auto-sync every 5 minutes
@@ -77,32 +77,22 @@ export default function GoogleSheetsSync() {
       errors.push(`Comercial/CAC: ${err?.message ?? "Erro desconhecido"}`);
     }
 
-    // Sync Dynamic Commercial Sheets
+    // Sync Dynamic Commercial Sheets via Adapter
     let dynamicOk = false;
     try {
-      const savedUrls = localStorage.getItem("palomares_gs_urls");
-      const customUrls = savedUrls ? JSON.parse(savedUrls) : {};
-      const setters: Record<string, any> = {
-        contatos: setContatos,
-        agenda: setAgenda,
-        oportunidades: setOportunidades,
-        vendas: setVendas,
-        followUps: setFollowUps,
-        indicacoes: setIndicacoes,
-      };
+      // Usar os links que o usuário informou
+      const agendaUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?output=csv";
+      const comercialUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBOEB4ZRHJM2hISSlSyKQQuomTH_CVQpavoNcm2GPCD2ZoYiCFsHOVO5wQ0CzWUppH9JGNe1CnTBZw/pub?gid=1794483408&single=true&output=csv";
+      
+      const expandedData = await fetchAggregatedCommercialSheets(agendaUrl, comercialUrl);
+      
+      setContatos(expandedData.contatos);
+      setAgenda(expandedData.agenda);
+      setOportunidades(expandedData.oportunidades);
+      setVendas(expandedData.vendas);
+      setFollowUps(expandedData.followUps);
+      setIndicacoes(expandedData.indicacoes);
 
-      const promises = SHEETS_CONFIG.map(async (sheet) => {
-        // Use custom URL from localStorage, or fall back to the hardcoded defaultUrl
-        const url = customUrls[sheet.id] || sheet.defaultUrl;
-        if (url) {
-          const data = await fetchDynamicSheet(url, sheet.keys);
-          if (data && data.length > 0) {
-            setters[sheet.id](data);
-          }
-        }
-      });
-
-      await Promise.allSettled(promises);
       dynamicOk = true;
     } catch (err: any) {
       errors.push(`Planilhas Comerciais: ${err?.message ?? "Erro desconhecido"}`);

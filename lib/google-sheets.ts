@@ -674,16 +674,19 @@ export async function fetchAggregatedCommercialSheets(
       });
     }
 
-    const avaliacoesCount = Number(row["QTD AVALIAÇÕES"]) || 0;
-    for (let i = 0; i < avaliacoesCount; i++) {
-      oportunidades.push({
-        idOportunidade: getId("OP"),
-        data: data,
-        tipoOportunidade: "Avaliação",
-        resultado: "Pendente",
-        valorOfertado: 0,
-        motivoPerda: "Não Informado",
-      });
+    const oppRaw = row["Oportunidades"] || row["QTD AVALIAÇÕES"];
+    const oppParsed = parseStrategyString(oppRaw);
+    for (const item of oppParsed) {
+      for (let i = 0; i < item.count; i++) {
+        oportunidades.push({
+          idOportunidade: getId("OP"),
+          data: data,
+          tipoOportunidade: item.strategy,
+          resultado: "Pendente",
+          valorOfertado: 0,
+          motivoPerda: "Não Informado",
+        });
+      }
     }
 
     const indCount = Number(row["Indicaçoes coletadas"]) || 0;

@@ -117,7 +117,7 @@ export default function OperacionalPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           <KPICard title="Avaliacoes" value={kpis.avaliacoes} icon={<Star size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Prospectados" value={kpis.prospectados} icon={<Users size={18} />} color="#a78b7a" delay={60} />
+          <KPICard title="Plano Novo" value={kpis.prospectados} icon={<Users size={18} />} color="#a78b7a" delay={60} />
           <KPICard title="Renovacoes" value={kpis.renovacoes} icon={<RefreshCw size={18} />} color="#8b6b5a" delay={120} />
           <KPICard title="Ticket Baixo" value={kpis.ticketBaixo} icon={<TrendingUp size={18} />} color="#b09080" delay={180} />
           <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#c4a090" delay={240} />
@@ -218,58 +218,7 @@ export default function OperacionalPage() {
         </div>
       </section>
 
-      {/* Motivos de Perda */}
-      {kpis.motivosPerdas.length > 0 && (
-        <div className="card p-5">
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold" style={{ color: "#f0ece8" }}>
-              Perdas por Motivo
-            </h3>
-            <p className="text-xs text-gray-500">Frequencia de cada motivo de perda</p>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                data={kpis.motivosPerdas}
-                layout="vertical"
-                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-                <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis
-                  type="category"
-                  dataKey="motivo"
-                  tick={{ fill: "#9ca3af", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={110}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" name="Ocorrencias" radius={[0, 4, 4, 0]} maxBarSize={20}>
-                  {kpis.motivosPerdas.map((_: any, i: number) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
 
-            <div className="space-y-2">
-              {kpis.motivosPerdas.map((m: any, i: number) => (
-                <div key={m.motivo} className="flex items-center gap-3">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{ background: COLORS[i % COLORS.length] }}
-                  />
-                  <span className="text-xs text-gray-400 flex-1">{m.motivo}</span>
-                  <span className="text-xs font-bold" style={{ color: COLORS[i % COLORS.length] }}>
-                    {m.count}x
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

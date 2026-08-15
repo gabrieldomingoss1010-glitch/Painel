@@ -153,13 +153,13 @@ export default function OperacionalPage() {
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Vendas</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          <KPICard title="Renovação" value={kpis.vendasRenovacao} icon={<RefreshCw size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Indicação/Lifiting" value={kpis.vendasIndicacaoLifting} icon={<Heart size={18} />} color="#a78b7a" delay={30} />
-          <KPICard title="Trafego" value={kpis.vendasTrafego} icon={<Users size={18} />} color="#8b6b5a" delay={60} />
-          <KPICard title="Aniversariantes" value={kpis.vendasAniversariantes} icon={<Gift size={18} />} color="#b09080" delay={90} />
-          <KPICard title="Ticket B/Avulsos" value={kpis.vendasTicketBAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={120} />
-          <KPICard title="Avaliações" value={kpis.vendasAvaliacoes} icon={<Star size={18} />} color="#9a7e70" delay={150} />
-          <KPICard title="Total de Planos" value={kpis.vendasRenovacao + kpis.vendasIndicacaoLifting + kpis.vendasTrafego + kpis.vendasAniversariantes + kpis.vendasTicketBAvulsos + kpis.vendasAvaliacoes} icon={<ClipboardList size={18} />} color="#cab2a1" delay={180} />
+          <KPICard title="Total de Planos" value={kpis.vendasRenovacao + kpis.vendasIndicacaoLifting + kpis.vendasTrafego + kpis.vendasAniversariantes + kpis.vendasTicketBAvulsos + kpis.vendasAvaliacoes} icon={<ClipboardList size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Renovação" value={kpis.vendasRenovacao} icon={<RefreshCw size={18} />} color="#cab2a1" delay={30} />
+          <KPICard title="Indicação/Lifiting" value={kpis.vendasIndicacaoLifting} icon={<Heart size={18} />} color="#a78b7a" delay={60} />
+          <KPICard title="Trafego" value={kpis.vendasTrafego} icon={<Users size={18} />} color="#8b6b5a" delay={90} />
+          <KPICard title="Aniversariantes" value={kpis.vendasAniversariantes} icon={<Gift size={18} />} color="#b09080" delay={120} />
+          <KPICard title="Ticket B/Avulsos" value={kpis.vendasTicketBAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={150} />
+          <KPICard title="Avaliações" value={kpis.vendasAvaliacoes} icon={<Star size={18} />} color="#9a7e70" delay={180} />
           <KPICard
             title="Valor Total Vendido"
             value={fmtBRL(kpis.valorTotal)}

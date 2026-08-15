@@ -155,14 +155,19 @@ export function parseCsvLine(line: string): string[] {
   return result;
 }
 
+const addCacheBuster = (url: string) => {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}cb=${Date.now()}`;
+};
+
 /**
  * Fetches the published Google Sheets CSVs (main and NPS), parses them,
  * and returns merged data mapped to the internal AtendimentoBruto format.
  */
 export async function fetchSheetsData(): Promise<AtendimentoBruto[]> {
   const [resMain, resNps] = await Promise.all([
-    fetch(SHEETS_URL, { cache: "no-store" }),
-    fetch(NPS_SHEETS_URL, { cache: "no-store" })
+    fetch(addCacheBuster(SHEETS_URL), { cache: "no-store" }),
+    fetch(addCacheBuster(NPS_SHEETS_URL), { cache: "no-store" })
   ]);
 
   if (!resMain.ok) {
@@ -302,8 +307,8 @@ export async function fetchComercialSheetsData(): Promise<{
   cacVsFaturamento: CacVsFaturamentoItem[];
 }> {
   const [resComercial, resCac] = await Promise.all([
-    fetch(COMERCIAL_SHEETS_URL, { cache: "no-store" }),
-    fetch(CAC_SHEETS_URL, { cache: "no-store" })
+    fetch(addCacheBuster(COMERCIAL_SHEETS_URL), { cache: "no-store" }),
+    fetch(addCacheBuster(CAC_SHEETS_URL), { cache: "no-store" })
   ]);
 
   if (!resComercial.ok) {
@@ -436,7 +441,7 @@ export async function fetchComercialSheetsData(): Promise<{
  * Handles the comma-separated format from Google Sheets.
  */
 export async function fetchDynamicSheet(url: string, keys: string[]): Promise<any[]> {
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(addCacheBuster(url), { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Falha ao buscar planilha comercial: ${res.status}`);
   }
@@ -477,8 +482,8 @@ export async function fetchAggregatedCommercialSheets(
   comercialUrl: string
 ) {
   const [resAgenda, resComercial] = await Promise.all([
-    fetch(agendaUrl, { cache: "no-store" }),
-    fetch(comercialUrl, { cache: "no-store" }),
+    fetch(addCacheBuster(agendaUrl), { cache: "no-store" }),
+    fetch(addCacheBuster(comercialUrl), { cache: "no-store" }),
   ]);
 
   if (!resAgenda.ok || !resComercial.ok) {

@@ -456,6 +456,38 @@ export function calcOperacionalKPIs(
   const planosVendidos = vendas.length;
   const aproveitamento = safeDivide(planosVendidos, totalOpportunidades) * 100;
 
+  const safeEst = (est: any) => String(est || "").trim().toLowerCase();
+
+  const vendasRenovacao = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("renovação") || e.includes("renovacao");
+  }).length;
+
+  const vendasIndicacaoLifting = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("indicação") || e.includes("indicacao") || e.includes("lifting");
+  }).length;
+
+  const vendasTrafego = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("tráfego") || e.includes("trafego");
+  }).length;
+
+  const vendasAniversariantes = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("aniversariante");
+  }).length;
+
+  const vendasTicketBAvulsos = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("ticket") || e.includes("avulso") || e.includes("avulsas") || e.includes("sessões avulsas") || e.includes("sessoes avulsas");
+  }).length;
+
+  const vendasAvaliacoes = vendas.filter((v) => {
+    const e = safeEst(v.estrategia);
+    return e.includes("avaliação") || e.includes("avaliacao");
+  }).length;
+
   const indSolicitadas = indicacoes.filter((i) => i.indicacaoSolicitada === "Sim").length;
   const indColetadas = indicacoes.filter((i) => i.indicouAlguem === "Sim").length;
   const taxaIndicacao = safeDivide(indColetadas, indSolicitadas) * 100;
@@ -497,6 +529,12 @@ export function calcOperacionalKPIs(
     totalOpportunidades,
     planosVendidos,
     aproveitamento,
+    vendasRenovacao,
+    vendasIndicacaoLifting,
+    vendasTrafego,
+    vendasAniversariantes,
+    vendasTicketBAvulsos,
+    vendasAvaliacoes,
     indSolicitadas,
     indColetadas,
     taxaIndicacao,

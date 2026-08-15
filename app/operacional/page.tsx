@@ -138,34 +138,39 @@ export default function OperacionalPage() {
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Vendas</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          <KPICard title="Planos Vendidos" value={kpis.planosVendidos} icon={<Star size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Renovação" value={kpis.vendasRenovacao} icon={<RefreshCw size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Indicação/Lifiting" value={kpis.vendasIndicacaoLifting} icon={<Heart size={18} />} color="#a78b7a" delay={30} />
+          <KPICard title="Trafego" value={kpis.vendasTrafego} icon={<Users size={18} />} color="#8b6b5a" delay={60} />
+          <KPICard title="Aniversariantes" value={kpis.vendasAniversariantes} icon={<Gift size={18} />} color="#b09080" delay={90} />
+          <KPICard title="Ticket B/Avulsos" value={kpis.vendasTicketBAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={120} />
+          <KPICard title="Avaliações" value={kpis.vendasAvaliacoes} icon={<Star size={18} />} color="#9a7e70" delay={150} />
           <KPICard
             title="Valor Total Vendido"
             value={fmtBRL(kpis.valorTotal)}
             icon={<DollarSign size={18} />}
             color="#a78b7a"
-            delay={60}
+            delay={180}
           />
           <KPICard
             title="Ticket Medio"
             value={fmtBRL(kpis.ticketMedio)}
             icon={<DollarSign size={18} />}
             color="#8b6b5a"
-            delay={120}
+            delay={210}
           />
           <KPICard
             title="Orcamentos Nao Fechados"
             value={kpis.orcamentosNaoFechados}
             icon={<AlertCircle size={18} />}
             color="#f87171"
-            delay={180}
+            delay={240}
           />
           <KPICard
             title="Valor Nao Fechado"
             value={fmtBRL(kpis.valorOrcamentosNaoFechados)}
             icon={<DollarSign size={18} />}
             color="#f87171"
-            delay={240}
+            delay={270}
           />
         </div>
       </section>

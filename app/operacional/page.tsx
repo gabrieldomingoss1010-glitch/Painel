@@ -196,12 +196,12 @@ export default function OperacionalPage() {
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Oportunidades</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
-          <KPICard title="Indicacao/Lifiting" value={kpis.indicacaoLifting} icon={<Heart size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#9a7e70" delay={0} />
           <KPICard title="Trafego Pago" value={kpis.trafegoPago} icon={<Users size={18} />} color="#a78b7a" delay={60} />
           <KPICard title="Aniversariantes" value={kpis.aniversariantes} icon={<Gift size={18} />} color="#8b6b5a" delay={120} />
           <KPICard title="Avaliacão" value={kpis.avaliacoes} icon={<Star size={18} />} color="#b09080" delay={180} />
           <KPICard title="Ticket Baixo/Avulsos" value={kpis.ticketBaixoAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={240} />
-          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#9a7e70" delay={300} />
+          <KPICard title="Indicacao/Lifiting" value={kpis.indicacaoLifting} icon={<Heart size={18} />} color="#cab2a1" delay={300} />
           <KPICard
             title="Aproveitamento"
             value={fmtPct(kpis.aproveitamento)}

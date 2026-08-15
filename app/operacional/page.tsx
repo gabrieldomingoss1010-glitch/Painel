@@ -110,25 +110,40 @@ export default function OperacionalPage() {
         />
       </div>
 
-      {/* Oportunidades */}
+      {/* Agenda */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Oportunidades</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Agenda</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
-          <KPICard title="Indicacao/Lifiting" value={kpis.indicacaoLifting} icon={<Heart size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Trafego Pago" value={kpis.trafegoPago} icon={<Users size={18} />} color="#a78b7a" delay={60} />
-          <KPICard title="Aniversariantes" value={kpis.aniversariantes} icon={<Gift size={18} />} color="#8b6b5a" delay={120} />
-          <KPICard title="Avaliacão" value={kpis.avaliacoes} icon={<Star size={18} />} color="#b09080" delay={180} />
-          <KPICard title="Ticket Baixo/Avulsos" value={kpis.ticketBaixoAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={240} />
-          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#9a7e70" delay={300} />
-          <KPICard
-            title="Aproveitamento"
-            value={fmtPct(kpis.aproveitamento)}
-            icon={<TrendingUp size={18} />}
-            color="#4ade80"
-            delay={360}
-          />
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          <KPICard title="Agendamentos" value={kpis.totalAgendamentos} icon={<CalendarCheck size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Comparecimentos" value={kpis.comparecimentos} icon={<CalendarCheck size={18} />} color="#4ade80" delay={60} />
+          <KPICard title="Remarcacoes" value={kpis.remarcacoes} icon={<RefreshCw size={18} />} color="#fb923c" delay={120} />
+          <KPICard title="Cancelamentos" value={kpis.cancelamentos} icon={<XCircle size={18} />} color="#f87171" delay={180} />
+          <KPICard title="Faltas" value={kpis.faltas} icon={<UserX size={18} />} color="#f87171" delay={240} />
+          <div className="card p-4 space-y-2">
+            <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Taxas da Agenda</p>
+            <div className="space-y-1.5">
+              {[
+                { label: "Comparecimento", value: kpis.taxaComparecimento, color: "#4ade80" },
+                { label: "Remarcacao", value: kpis.taxaRemarcacao, color: "#fb923c" },
+                { label: "Ausencia", value: kpis.taxaAusencia, color: "#f87171" },
+              ].map((t) => (
+                <div key={t.label}>
+                  <div className="flex justify-between text-[10px] mb-0.5">
+                    <span className="text-gray-400">{t.label}</span>
+                    <span style={{ color: t.color }}>{fmtPct(t.value)}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full" style={{ background: "#1e1e2a" }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${Math.min(t.value, 100)}%`, background: t.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -175,42 +190,25 @@ export default function OperacionalPage() {
         </div>
       </section>
 
-
-
-      {/* Agenda */}
+      {/* Oportunidades */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Agenda</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Oportunidades</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <KPICard title="Agendamentos" value={kpis.totalAgendamentos} icon={<CalendarCheck size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Comparecimentos" value={kpis.comparecimentos} icon={<CalendarCheck size={18} />} color="#4ade80" delay={60} />
-          <KPICard title="Remarcacoes" value={kpis.remarcacoes} icon={<RefreshCw size={18} />} color="#fb923c" delay={120} />
-          <KPICard title="Cancelamentos" value={kpis.cancelamentos} icon={<XCircle size={18} />} color="#f87171" delay={180} />
-          <KPICard title="Faltas" value={kpis.faltas} icon={<UserX size={18} />} color="#f87171" delay={240} />
-          <div className="card p-4 space-y-2">
-            <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Taxas da Agenda</p>
-            <div className="space-y-1.5">
-              {[
-                { label: "Comparecimento", value: kpis.taxaComparecimento, color: "#4ade80" },
-                { label: "Remarcacao", value: kpis.taxaRemarcacao, color: "#fb923c" },
-                { label: "Ausencia", value: kpis.taxaAusencia, color: "#f87171" },
-              ].map((t) => (
-                <div key={t.label}>
-                  <div className="flex justify-between text-[10px] mb-0.5">
-                    <span className="text-gray-400">{t.label}</span>
-                    <span style={{ color: t.color }}>{fmtPct(t.value)}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full" style={{ background: "#1e1e2a" }}>
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${Math.min(t.value, 100)}%`, background: t.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
+          <KPICard title="Indicacao/Lifiting" value={kpis.indicacaoLifting} icon={<Heart size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Trafego Pago" value={kpis.trafegoPago} icon={<Users size={18} />} color="#a78b7a" delay={60} />
+          <KPICard title="Aniversariantes" value={kpis.aniversariantes} icon={<Gift size={18} />} color="#8b6b5a" delay={120} />
+          <KPICard title="Avaliacão" value={kpis.avaliacoes} icon={<Star size={18} />} color="#b09080" delay={180} />
+          <KPICard title="Ticket Baixo/Avulsos" value={kpis.ticketBaixoAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={240} />
+          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#9a7e70" delay={300} />
+          <KPICard
+            title="Aproveitamento"
+            value={fmtPct(kpis.aproveitamento)}
+            icon={<TrendingUp size={18} />}
+            color="#4ade80"
+            delay={360}
+          />
         </div>
       </section>
 

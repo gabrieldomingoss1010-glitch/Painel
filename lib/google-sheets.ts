@@ -660,9 +660,9 @@ export async function fetchAggregatedCommercialSheets(
       }
     }
 
-    const orcamentoParsed = parseStrategyString(row["Quantidade de Clientes com orcamentos "] || row["Quantidade de Clientes com orcamentos"]);
+    const orcamentoParsed = parseStrategyString(row["Clientes com Orçamentos"] || row["Clientes com Orçamentos "] || row["Quantidade de Clientes com orcamentos "]);
     const orcamentosCount = orcamentoParsed.reduce((acc, curr) => acc + curr.count, 0);
-    const orcamentosValor = Number(row["VALOR R$ DOS ORÇAMENTOS"]) || 0;
+    const orcamentosValor = Number(row["VALOR R$ DOS ORÇAMENTOS"]) || Number(row["VALOR R$ DOS ORÇAMENTOS "]) || 0;
     
     for (let i = 0; i < orcamentosCount; i++) {
       oportunidades.push({

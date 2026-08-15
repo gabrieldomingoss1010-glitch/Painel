@@ -423,27 +423,27 @@ export function calcOperacionalKPIs(
 
   const avaliacoes = kpiOportunidades.filter((o) => {
     const t = safeTipo(o.tipoOportunidade);
-    return t === "avaliação" || t === "avaliacao" || t === "avaliações" || t === "avaliacoes";
+    return t.includes("aval");
   }).length;
 
   const indicacaoLifting = kpiOportunidades.filter((o) => {
     const t = safeTipo(o.tipoOportunidade);
-    return t.includes("indicação") || t.includes("indicacao") || t.includes("lifting");
+    return t.includes("indica") || t.includes("lifting");
   }).length;
 
   const trafegoPago = kpiOportunidades.filter((o) => {
     const t = safeTipo(o.tipoOportunidade);
-    return t.includes("tráfego") || t.includes("trafego");
+    return t.includes("trafeg") || t.includes("tráfeg");
   }).length;
 
   const aniversariantes = kpiOportunidades.filter((o) => {
     const t = safeTipo(o.tipoOportunidade);
-    return t.includes("aniversariante");
+    return t.includes("aniver");
   }).length;
 
   const ticketBaixoAvulsos = kpiOportunidades.filter((o) => {
     const t = safeTipo(o.tipoOportunidade);
-    return t.includes("ticket baixo") || t.includes("sessão avulsa") || t.includes("sessao avulsa") || t.includes("sessões avulsas") || t.includes("sessoes avulsas") || t.includes("avulso") || t.includes("avulsas");
+    return t.includes("ticket") || t.includes("avuls");
   }).length;
 
   // Keep these fallback values for compatibility if referenced elsewhere
@@ -460,32 +460,32 @@ export function calcOperacionalKPIs(
 
   const vendasRenovacao = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("renovação") || e.includes("renovacao");
+    return e.includes("renov");
   }).length;
 
   const vendasIndicacaoLifting = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("indicação") || e.includes("indicacao") || e.includes("lifting");
+    return e.includes("indica") || e.includes("lifting");
   }).length;
 
   const vendasTrafego = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("tráfego") || e.includes("trafego");
+    return e.includes("trafeg") || e.includes("tráfeg");
   }).length;
 
   const vendasAniversariantes = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("aniversariante");
+    return e.includes("aniver");
   }).length;
 
   const vendasTicketBAvulsos = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("ticket") || e.includes("avulso") || e.includes("avulsas") || e.includes("sessões avulsas") || e.includes("sessoes avulsas");
+    return e.includes("ticket") || e.includes("avuls");
   }).length;
 
   const vendasAvaliacoes = vendas.filter((v) => {
     const e = safeEst(v.estrategia);
-    return e.includes("avaliação") || e.includes("avaliacao");
+    return e.includes("aval");
   }).length;
 
   const indSolicitadas = indicacoes.filter((i) => i.indicacaoSolicitada === "Sim").length;

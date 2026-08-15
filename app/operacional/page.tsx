@@ -159,33 +159,34 @@ export default function OperacionalPage() {
           <KPICard title="Aniversariantes" value={kpis.vendasAniversariantes} icon={<Gift size={18} />} color="#b09080" delay={90} />
           <KPICard title="Ticket B/Avulsos" value={kpis.vendasTicketBAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={120} />
           <KPICard title="Avaliações" value={kpis.vendasAvaliacoes} icon={<Star size={18} />} color="#9a7e70" delay={150} />
+          <KPICard title="Total de Planos" value={kpis.vendasRenovacao + kpis.vendasIndicacaoLifting + kpis.vendasTrafego + kpis.vendasAniversariantes + kpis.vendasTicketBAvulsos + kpis.vendasAvaliacoes} icon={<ClipboardList size={18} />} color="#cab2a1" delay={180} />
           <KPICard
             title="Valor Total Vendido"
             value={fmtBRL(kpis.valorTotal)}
             icon={<DollarSign size={18} />}
             color="#a78b7a"
-            delay={180}
+            delay={210}
           />
           <KPICard
             title="Ticket Medio"
             value={fmtBRL(kpis.ticketMedio)}
             icon={<DollarSign size={18} />}
             color="#8b6b5a"
-            delay={210}
+            delay={240}
           />
           <KPICard
             title="Orcamentos Nao Fechados"
             value={kpis.orcamentosNaoFechados}
             icon={<AlertCircle size={18} />}
             color="#f87171"
-            delay={240}
+            delay={270}
           />
           <KPICard
             title="Valor Nao Fechado"
             value={fmtBRL(kpis.valorOrcamentosNaoFechados)}
             icon={<DollarSign size={18} />}
             color="#f87171"
-            delay={270}
+            delay={300}
           />
         </div>
       </section>

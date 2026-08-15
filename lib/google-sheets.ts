@@ -695,7 +695,25 @@ export async function fetchAggregatedCommercialSheets(
       }
     }
 
-    const indCount = Number(row["Indicaçoes coletadas"]) || 0;
+    const indRaw = row["INDICAÇOES COLETADAS"] || row["INDICAÇÕES COLETADAS"] || row["Indicacoes Coletadas"] || row["Indicaçoes coletadas"] || "";
+    let indCount = 0;
+    if (indRaw !== undefined && indRaw !== null && indRaw !== "") {
+      const s = String(indRaw).trim();
+      if (!isNaN(Number(s))) {
+        indCount = Number(s);
+      } else {
+        const parts = s.split(",");
+        for (const part of parts) {
+          const match = part.trim().match(/^(\d+)\s*-\s*(.+)$/);
+          if (match) {
+            indCount += Number(match[1]);
+          } else {
+            indCount += 1;
+          }
+        }
+      }
+    }
+    
     for (let i = 0; i < indCount; i++) {
       indicacoes.push({
         id: getId("IND"),

@@ -213,6 +213,16 @@ export default function OperacionalPage() {
         </div>
       </section>
 
+      {/* Indicacoes */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Indicacoes</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <KPICard title="Indicações Coletadas" value={kpis.indColetadas} icon={<Heart size={18} />} color="#a78b7a" delay={0} />
+        </div>
+      </section>
+
 
     </div>
   );

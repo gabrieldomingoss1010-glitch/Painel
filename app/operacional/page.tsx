@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import {
   ClipboardList, Users, Star, CalendarCheck,
   TrendingUp, DollarSign, AlertCircle, Heart,
-  UserX, XCircle, RefreshCw, ChevronDown,
+  UserX, XCircle, RefreshCw, ChevronDown, Gift,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -115,18 +115,19 @@ export default function OperacionalPage() {
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Oportunidades</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          <KPICard title="Avaliacoes" value={kpis.avaliacoes} icon={<Star size={18} />} color="#cab2a1" delay={0} />
-          <KPICard title="Plano Novo" value={kpis.prospectados} icon={<Users size={18} />} color="#a78b7a" delay={60} />
-          <KPICard title="Renovacoes" value={kpis.renovacoes} icon={<RefreshCw size={18} />} color="#8b6b5a" delay={120} />
-          <KPICard title="Ticket Baixo" value={kpis.ticketBaixo} icon={<TrendingUp size={18} />} color="#b09080" delay={180} />
-          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#c4a090" delay={240} />
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4">
+          <KPICard title="Indicacao/Lifiting" value={kpis.indicacaoLifting} icon={<Heart size={18} />} color="#cab2a1" delay={0} />
+          <KPICard title="Trafego Pago" value={kpis.trafegoPago} icon={<Users size={18} />} color="#a78b7a" delay={60} />
+          <KPICard title="Aniversariantes" value={kpis.aniversariantes} icon={<Gift size={18} />} color="#8b6b5a" delay={120} />
+          <KPICard title="Avaliacão" value={kpis.avaliacoes} icon={<Star size={18} />} color="#b09080" delay={180} />
+          <KPICard title="Ticket Baixo/Avulsos" value={kpis.ticketBaixoAvulsos} icon={<TrendingUp size={18} />} color="#c4a090" delay={240} />
+          <KPICard title="Total Oportunidades" value={kpis.totalOpportunidades} icon={<ClipboardList size={18} />} color="#9a7e70" delay={300} />
           <KPICard
             title="Aproveitamento"
             value={fmtPct(kpis.aproveitamento)}
             icon={<TrendingUp size={18} />}
             color="#4ade80"
-            delay={300}
+            delay={360}
           />
         </div>
       </section>

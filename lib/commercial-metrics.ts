@@ -419,15 +419,40 @@ export function calcOperacionalKPIs(
 ) {
   const safeTipo = (tipo: any) => String(tipo || "").trim().toLowerCase();
   
-  const avaliacoes = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "avaliação" || safeTipo(o.tipoOportunidade) === "avaliacao").length;
-  const prospectados = oportunidades.filter((o) =>
-    safeTipo(o.tipoOportunidade) === "plano novo" || safeTipo(o.tipoOportunidade) === "reativação" || safeTipo(o.tipoOportunidade) === "reativacao"
-  ).length;
-  const renovacoes = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "renovação" || safeTipo(o.tipoOportunidade) === "renovacao").length;
-  const ticketBaixo = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "ticket baixo").length;
-  const orcamentos = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "orçamento" || safeTipo(o.tipoOportunidade) === "orcamento").length;
+  const kpiOportunidades = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) !== "orçamento");
 
-  const totalOpportunidades = avaliacoes + prospectados + renovacoes + ticketBaixo;
+  const avaliacoes = kpiOportunidades.filter((o) => {
+    const t = safeTipo(o.tipoOportunidade);
+    return t === "avaliação" || t === "avaliacao" || t === "avaliações" || t === "avaliacoes";
+  }).length;
+
+  const indicacaoLifting = kpiOportunidades.filter((o) => {
+    const t = safeTipo(o.tipoOportunidade);
+    return t.includes("indicação") || t.includes("indicacao") || t.includes("lifting");
+  }).length;
+
+  const trafegoPago = kpiOportunidades.filter((o) => {
+    const t = safeTipo(o.tipoOportunidade);
+    return t.includes("tráfego") || t.includes("trafego");
+  }).length;
+
+  const aniversariantes = kpiOportunidades.filter((o) => {
+    const t = safeTipo(o.tipoOportunidade);
+    return t.includes("aniversariante");
+  }).length;
+
+  const ticketBaixoAvulsos = kpiOportunidades.filter((o) => {
+    const t = safeTipo(o.tipoOportunidade);
+    return t.includes("ticket baixo") || t.includes("sessão avulsa") || t.includes("sessao avulsa") || t.includes("sessões avulsas") || t.includes("sessoes avulsas") || t.includes("avulso") || t.includes("avulsas");
+  }).length;
+
+  // Keep these fallback values for compatibility if referenced elsewhere
+  const prospectados = 0;
+  const renovacoes = 0;
+  const ticketBaixo = 0;
+  const orcamentos = oportunidades.filter((o) => safeTipo(o.tipoOportunidade) === "orçamento").length;
+
+  const totalOpportunidades = kpiOportunidades.length;
   const planosVendidos = vendas.length;
   const aproveitamento = safeDivide(planosVendidos, totalOpportunidades) * 100;
 
@@ -461,6 +486,10 @@ export function calcOperacionalKPIs(
 
   return {
     avaliacoes,
+    indicacaoLifting,
+    trafegoPago,
+    aniversariantes,
+    ticketBaixoAvulsos,
     prospectados,
     renovacoes,
     ticketBaixo,
